@@ -1,0 +1,108 @@
+.bulletWrapper {
+    display: flex;
+    align-items: flex-start;
+    position: relative;
+    margin: 0;
+    min-height: 1.5em;
+    width: 100%;
+    transition: padding-left 0.15s ease;
+}
+
+/* ── Indent Levels (Tab / Shift+Tab) ── */
+.indent0 {
+    padding-left: 0;
+}
+
+.indent1 {
+    padding-left: 28px;
+}
+
+.indent2 {
+    padding-left: 56px;
+}
+
+.indent3 {
+    padding-left: 84px;
+}
+
+.bulletMarker {
+    flex-shrink: 0;
+    width: 24px;
+    height: 1.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 4px;
+    user-select: none;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.2em;
+    line-height: 1;
+}
+
+.text {
+    flex-grow: 1;
+    margin: 0;
+    padding: 0;
+    outline: none;
+    color: #ffffff;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    min-height: 1.5em;
+    position: relative;
+    word-break: break-word;
+    white-space: pre-wrap;
+}
+
+.text.empty:focus::before {
+    content: attr(data-placeholder);
+    color: rgba(255, 255, 255, 0.3);
+    position: absolute;
+    left: 0;
+    top: 0;
+    pointer-events: none;
+}
+
+/* Markdown Preview Styles within Bullet Block */
+.markdownPreview {
+    margin: 0;
+    padding: 0;
+    outline: none;
+    color: #ffffff !important;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    min-height: 1.5em;
+    position: relative;
+    cursor: text;
+}
+
+.markdownPreview p {
+    margin: 0;
+    padding: 0;
+    display: block;
+    color: #ffffff !important;
+}
+
+.markdownPreview a {
+    color: #58a6ff !important;
+    text-decoration: none;
+}
+
+.markdownPreview a:hover {
+    text-decoration: underline;
+}
+
+.markdownPreview code {
+    background: rgba(110, 118, 129, 0.4);
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+    font-size: 85%;
+    font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+}
+
+.placeholderOverlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: rgba(255, 255, 255, 0.3);
+    pointer-events: none;
+}

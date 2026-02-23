@@ -2,7 +2,7 @@
 
 import styles from '@/shared/styles/SectionSettings.module.css'
 
-import { STYLE_OPTIONS, PERIOD_OPTIONS, StyleOption, PeriodOption } from '@/features/section-stats/config/visualization-options'
+import { STYLE_OPTIONS, PERIOD_OPTIONS, THEME_COLORS, MetricColor, StyleOption, PeriodOption } from '@/features/section-stats/config/visualization-options'
 
 interface SortOption<T extends string> {
     id: T
@@ -14,6 +14,7 @@ export interface WeeklyConfig<SortType extends string> {
     count: number
     sortBy: SortType
     periodDays: number
+    themeColor?: MetricColor // New
 }
 
 interface WeeklySettingsBaseProps<SortType extends string> {
@@ -21,10 +22,16 @@ interface WeeklySettingsBaseProps<SortType extends string> {
     setConfig: (config: Partial<WeeklyConfig<SortType>>) => void
     sortOptions: SortOption<SortType>[]
     children?: React.ReactNode
+    onAnalyze?: () => void
+    isAnalyzing?: boolean
+    defaultThemeColor?: MetricColor // New prop to handle default selection state
 }
 
-export function WeeklySettingsBase<SortType extends string>({ config, setConfig, sortOptions, children }: WeeklySettingsBaseProps<SortType>) {
+export function WeeklySettingsBase<SortType extends string>({ config, setConfig, sortOptions, children, onAnalyze, isAnalyzing, defaultThemeColor = 'blue' }: WeeklySettingsBaseProps<SortType>) {
     const { style, count, sortBy, periodDays } = config
+
+    // Determine active color (fall back to default if not set in config)
+    const activeThemeColor = config.themeColor || defaultThemeColor
 
     // Semantic Handlers (Rule 2)
     const handleStyleChange = (newStyle: string) => {
@@ -65,20 +72,52 @@ export function WeeklySettingsBase<SortType extends string>({ config, setConfig,
                 </div>
             </div>
 
+            {/* Theme Color (Only for Emoji/Compact styles) */}
+            {style !== 'progress' && (
+                <div className={styles.settingsSection}>
+                    <span className={styles.sectionTitle}>Theme Color</span>
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                        {THEME_COLORS.map((color: { id: MetricColor; name: string; hex: string }) => (
+                            <button
+                                key={color.id}
+                                type="button"
+                                onClick={() => setConfig({ themeColor: color.id })}
+                                style={{
+                                    width: '24px',
+                                    height: '24px',
+                                    borderRadius: '50%',
+                                    backgroundColor: color.hex,
+                                    border: activeThemeColor === color.id
+                                        ? '2px solid white'
+                                        : '2px solid transparent',
+                                    boxShadow: activeThemeColor === color.id
+                                        ? '0 0 0 2px ' + color.hex
+                                        : 'none',
+                                    cursor: 'pointer',
+                                    transition: 'transform 0.2s',
+                                    padding: 0
+                                }}
+                                title={color.name}
+                                onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
+                                onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                            />
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* Count Slider */}
             <div className={styles.settingsSection}>
-                <div className={styles.settingRow}>
-                    <label className={styles.settingLabel} htmlFor="count-slider">Display Count: {count}</label>
-                    <input
-                        id="count-slider"
-                        type="range"
-                        min="3"
-                        max="10"
-                        value={count}
-                        onChange={handleCountChange}
-                        className={styles.rangeInput}
-                    />
-                </div>
+                <span className={styles.sectionTitle}>Display Count: {count}</span>
+                <input
+                    id="count-slider"
+                    type="range"
+                    min="3"
+                    max="10"
+                    value={count}
+                    onChange={handleCountChange}
+                    className={styles.rangeInput}
+                />
             </div>
 
             {/* Sort By */}

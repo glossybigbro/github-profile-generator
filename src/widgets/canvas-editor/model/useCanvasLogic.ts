@@ -1,4 +1,4 @@
-import { useMemo, useCallback } from 'react'
+import { useMemo, useCallback, useEffect } from 'react'
 import { useCanvasEditor } from './useCanvasEditor'
 import { useSlashMenuLogic } from '@/features/slash-command/model/useSlashMenuLogic'
 import { useSlashNavigation } from '@/features/slash-command/model/useSlashNavigation'
@@ -18,7 +18,8 @@ export function useCanvasLogic() {
         insertBlockAfter,
         addBlock,
         removeBlock,
-        turnIntoBlock
+        turnIntoBlock,
+        reorderBlocks
     } = editor
 
     // 2. Slash Menu Core Logic
@@ -86,6 +87,16 @@ export function useCanvasLogic() {
             return
         }
 
+        // --- CRITICAL FIX: MULTI-BLOCK TEXT SELECTION ---
+        // When a user mousedown's on Block A, drags, and mouseup's on Block B,
+        // the browser fires a 'click' event on their most specific common ancestor (the Canvas).
+        // We MUST NOT interpret this as a "background click" to reset focus, because it will destroy the text selection!
+        const selection = window.getSelection()
+        const isTextSelected = selection && selection.toString().length > 0
+        if (isTextSelected) {
+            return
+        }
+
         // 2. Smart Focus Logic (Clicking empty space)
         // Ensure we clicked the container, not a child
         if (e.target !== e.currentTarget) return
@@ -127,6 +138,38 @@ export function useCanvasLogic() {
         }
     }, [blocks, slashMenu.isOpen, handleCloseSlashMenu, setActiveBlock])
 
+    // 6. Bulk Actions Keyboard Listener
+    useEffect(() => {
+        const handleGlobalKeyDown = (e: KeyboardEvent) => {
+            const { selectedIds, clearSelection } = import('@/entities/block/model/useSelectionStore').then(m => m.useSelectionStore.getState()) as any // We will import directly above
+            // Use direct state read to avoid reactivity loops on every keydown
+            import('@/entities/block/model/useSelectionStore').then(({ useSelectionStore }) => {
+                const state = useSelectionStore.getState()
+                if (state.selectedIds.size === 0) return
+
+                const idsArray = Array.from(state.selectedIds)
+
+                // Bulk Delete
+                if (e.key === 'Backspace' || e.key === 'Delete') {
+                    // Prevent default backspace navigation if somehow active
+                    e.preventDefault()
+                    editor.removeBlocks(idsArray)
+                    state.clearSelection()
+                }
+
+                // Bulk Duplicate (Cmd/Ctrl + D)
+                if (e.key === 'd' && (e.metaKey || e.ctrlKey)) {
+                    e.preventDefault()
+                    editor.duplicateBlocks(idsArray)
+                    state.clearSelection()
+                }
+            })
+        }
+
+        window.addEventListener('keydown', handleGlobalKeyDown)
+        return () => window.removeEventListener('keydown', handleGlobalKeyDown)
+    }, [editor])
+
     return {
         // State
         blocks,
@@ -143,6 +186,7 @@ export function useCanvasLogic() {
         addBlock,
         removeBlock,
         turnIntoBlock,
+        reorderBlocks,
         handleOpenSlashMenu,
         handleCloseSlashMenu,
         handleSlashItemHover,

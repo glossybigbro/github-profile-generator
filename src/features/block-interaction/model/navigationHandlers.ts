@@ -30,7 +30,10 @@ export const handleArrowNavigation = (e: KeyboardEvent, ctx: BlockEventContext) 
                 e.preventDefault()
                 let targetIndex = index - 1
 
-                while (targetIndex >= 0 && blocks[targetIndex].type === BLOCK_TYPES.DIVIDER) {
+                // Skip over dividers and widgets (non-editable blocks)
+                while (targetIndex >= 0 &&
+                    (blocks[targetIndex].type === BLOCK_TYPES.DIVIDER ||
+                        blocks[targetIndex].type === BLOCK_TYPES.WIDGET)) {
                     targetIndex--
                 }
 
@@ -61,9 +64,14 @@ export const handleArrowNavigation = (e: KeyboardEvent, ctx: BlockEventContext) 
             if (index < blocks.length - 1) {
                 e.preventDefault()
                 let targetIndex = index + 1
-                while (targetIndex < blocks.length && blocks[targetIndex].type === BLOCK_TYPES.DIVIDER) {
+
+                // Skip over dividers and widgets (non-editable blocks)
+                while (targetIndex < blocks.length &&
+                    (blocks[targetIndex].type === BLOCK_TYPES.DIVIDER ||
+                        blocks[targetIndex].type === BLOCK_TYPES.WIDGET)) {
                     targetIndex++
                 }
+
                 if (targetIndex < blocks.length) {
                     onSetActiveBlock(blocks[targetIndex].id)
                 }

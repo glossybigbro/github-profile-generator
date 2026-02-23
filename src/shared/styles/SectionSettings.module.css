@@ -36,7 +36,7 @@
 }
 
 .sectionTitle {
-    margin: 0 0 12px 0;
+    margin: 0;
     font-size: 12px;
     font-weight: 700;
     color: rgba(0, 217, 255, 0.9);
@@ -797,7 +797,7 @@ input:checked+.slider:before {
     appearance: none;
     -webkit-appearance: none;
     width: 100%;
-    margin: 8px 0;
+    margin: 0;
     background: transparent;
 }
 
@@ -873,9 +873,9 @@ input:checked+.slider:before {
 .settingsSection {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-lg);
+    gap: 12px;
     padding-bottom: 0;
-    margin-bottom: var(--spacing-lg);
+    margin-bottom: 24px;
     border-bottom: none;
 }
 
@@ -1016,7 +1016,6 @@ textarea.settingsInput {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
-    margin-bottom: 20px;
 }
 
 .styleCard {
@@ -1096,6 +1095,73 @@ textarea.settingsInput {
     opacity: 0.6;
     cursor: wait;
     transform: none;
+}
+
+/* Add to Canvas Button - Premium Neon Style */
+.addToCanvasButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, rgba(0, 217, 255, 0.15) 0%, rgba(168, 85, 247, 0.15) 100%);
+    border: 2px solid rgba(0, 217, 255, 0.6);
+    border-radius: var(--radius-md);
+    color: white;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: var(--font-system);
+    box-shadow:
+        0 4px 16px rgba(0, 217, 255, 0.2),
+        0 0 20px rgba(0, 217, 255, 0.15),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    text-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    position: relative;
+    overflow: hidden;
+}
+
+.addToCanvasButton::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transform: rotate(45deg);
+    transition: all 0.5s;
+}
+
+.addToCanvasButton:hover {
+    background: linear-gradient(135deg, rgba(0, 217, 255, 0.25) 0%, rgba(168, 85, 247, 0.25) 100%);
+    border-color: rgba(0, 217, 255, 0.9);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow:
+        0 8px 24px rgba(0, 217, 255, 0.4),
+        0 0 40px rgba(0, 217, 255, 0.3),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+    text-shadow: 0 0 15px rgba(0, 217, 255, 0.8);
+}
+
+.addToCanvasButton:hover::before {
+    left: 100%;
+}
+
+.addToCanvasButton:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow:
+        0 2px 8px rgba(0, 217, 255, 0.3),
+        0 0 20px rgba(0, 217, 255, 0.2);
+}
+
+.addToCanvasButton span {
+    font-size: 18px;
+    filter: drop-shadow(0 0 8px rgba(0, 217, 255, 0.8));
 }
 
 .spinner {
@@ -1276,7 +1342,7 @@ textarea.settingsInput {
 /* Button Group - Neon Glass */
 .buttonGroup {
     display: flex;
-    gap: 8px;
+    gap: 10px;
     flex-wrap: wrap;
 }
 

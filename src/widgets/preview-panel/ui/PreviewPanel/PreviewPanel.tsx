@@ -1,7 +1,8 @@
 'use client'
 
+import { useState } from 'react'
 import { useProfileStore } from '@/entities/profile/model/useProfileStore'
-import { useProfileExport } from '@/features/profile-export'
+import { useProfileExport, ExportModal } from '@/features/profile-export'
 import { MarkdownViewer } from '@/entities/profile/ui'
 import { APP_CONFIG } from '@/shared/config/constants'
 import styles from './PreviewPanel.module.css'
@@ -10,8 +11,9 @@ import { usePreviewPanel, PREVIEW_TABS } from '../../model/usePreviewPanel'
 export function PreviewPanel() {
     // We only need specific selectors for rendering if needed, or let children handle it.
     // However, PreviewPanel main job is layout switching.
-    const { handleCopy, handleDownload } = useProfileExport()
+    const { copyToClipboard: handleCopy, handleDownload } = useProfileExport()
     const { activeTab, setActiveTab, getGeneratedMarkdown } = usePreviewPanel()
+    const [isExportModalOpen, setIsExportModalOpen] = useState(false)
 
     return (
         <div className={styles.rightPanel}>
@@ -55,7 +57,18 @@ export function PreviewPanel() {
 
             <div className={styles.actions}>
                 <button className={styles.copyButton} onClick={handleCopy}>{APP_CONFIG.BUTTONS.COPY}</button>
-                <button className={styles.downloadButton} onClick={handleDownload}>{APP_CONFIG.BUTTONS.DOWNLOAD}</button>
+                <button
+                    className={styles.downloadButton}
+                    onClick={() => setIsExportModalOpen(true)}
+                >
+                    {APP_CONFIG.BUTTONS.DOWNLOAD}
+                </button>
+
+                {/* Export Modal Integration */}
+                <ExportModal
+                    isOpen={isExportModalOpen}
+                    onClose={() => setIsExportModalOpen(false)}
+                />
             </div>
         </div>
     )

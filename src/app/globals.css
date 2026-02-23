@@ -57,3 +57,27 @@ p {
   line-height: 1.6;
   color: var(--text-secondary);
 }
+
+/* 
+ * 🔲 Block Selection Styles
+ * Used by SortableBlock when isSelected is true
+ */
+.block-wrapper-with-handle.selected {
+  background-color: rgba(59, 130, 246, 0.15);
+  /* Light blue background */
+  border-radius: 4px;
+  position: relative;
+  transition: background-color 0.15s ease-in-out;
+}
+
+/* Add a subtle left border to selected blocks for extra visibility */
+.block-wrapper-with-handle.selected::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background-color: rgba(59, 130, 246, 0.8);
+  border-radius: 2px;
+}

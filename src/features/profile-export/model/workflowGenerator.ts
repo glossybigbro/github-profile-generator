@@ -7,9 +7,9 @@
  */
 
 export interface WorkflowConfig {
-    username: string
-    apiEndpoint: string
-    updateInterval: string // cron expression
+  username: string
+  apiEndpoint: string
+  updateInterval: string // cron expression
 }
 
 /**
@@ -19,9 +19,9 @@ export interface WorkflowConfig {
  * @returns YAML content as string
  */
 export function generateWorkflowYAML(config: WorkflowConfig): string {
-    const { username, apiEndpoint, updateInterval } = config
+  const { username, apiEndpoint, updateInterval } = config
 
-    return `name: Update Profile README
+  return `name: Update Profile README
 
 on:
   schedule:
@@ -56,7 +56,7 @@ jobs:
  * Get default cron expression for 6-hour updates
  */
 export function getDefaultCronExpression(): string {
-    return '0 */6 * * *' // Every 6 hours at minute 0
+  return '0 */6 * * *' // Every 6 hours at minute 0
 }
 
 /**
@@ -66,13 +66,13 @@ export function getDefaultCronExpression(): string {
  * @returns YAML content for .github/workflows/update-profile.yml
  */
 export function generateProfileUpdateWorkflow(username: string): string {
-    const config: WorkflowConfig = {
-        username,
-        apiEndpoint: process.env.NEXT_PUBLIC_SITE_URL
-            ? `${process.env.NEXT_PUBLIC_SITE_URL}/api/generate`
-            : 'https://your-site.vercel.app/api/generate',
-        updateInterval: getDefaultCronExpression()
-    }
+  const config: WorkflowConfig = {
+    username,
+    apiEndpoint: process.env.NEXT_PUBLIC_SITE_URL
+      ? `${process.env.NEXT_PUBLIC_SITE_URL}/api/generate`
+      : 'https://YOUR-DEPLOYED-APP.vercel.app/api/generate',
+    updateInterval: getDefaultCronExpression()
+  }
 
-    return generateWorkflowYAML(config)
+  return generateWorkflowYAML(config)
 }

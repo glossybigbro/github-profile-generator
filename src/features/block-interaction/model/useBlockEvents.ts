@@ -5,6 +5,7 @@ import {
     handleEnterKey,
     handleBackspace,
     handleDividerEvents,
+    handleTab,
     BlockEventContext
 } from './index' // Importing from aggregated index
 
@@ -15,7 +16,7 @@ interface UseBlockEventsProps {
     onInsertBlockAfter: (prevBlockId: string, newBlock: Block, shouldFocus?: boolean) => void
     onAddBlock: (block: Block, index?: number, shouldFocus?: boolean) => void
     onUpdateBlock: (blockId: string, updates: Partial<Block>) => void
-    onTurnIntoBlock: (blockId: string, newBlock: Block) => void
+    onTurnIntoBlock: (blockId: string, newBlock: Block, maintainContent?: boolean) => void
 }
 
 export function useBlockEvents(props: UseBlockEventsProps) { // Use 'props' grouping to easily pass context
@@ -37,13 +38,16 @@ export function useBlockEvents(props: UseBlockEventsProps) { // Use 'props' grou
             return
         }
 
-        // 2. General Block Logic (Enter)
+        // 2. Tab / Shift+Tab (Bullet indent/outdent)
+        handleTab(e, ctx)
+
+        // 3. General Block Logic (Enter)
         handleEnterKey(e, ctx)
 
-        // 3. Navigation (Arrow Up/Down)
+        // 4. Navigation (Arrow Up/Down)
         handleArrowNavigation(e, ctx)
 
-        // 4. Deletion / Merging (Backspace)
+        // 5. Deletion / Merging (Backspace)
         handleBackspace(e, ctx)
 
     }, [props]) // Dependency on props object (React keeps props stable if not destructured, but better to check individual deps if needed. 

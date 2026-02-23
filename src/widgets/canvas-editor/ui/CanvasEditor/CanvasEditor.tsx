@@ -19,6 +19,7 @@ export function CanvasEditor() {
         addBlock,
         removeBlock,
         turnIntoBlock,
+        reorderBlocks,
         handleOpenSlashMenu,
         handleCloseSlashMenu,
         handleSlashItemHover,
@@ -51,6 +52,7 @@ export function CanvasEditor() {
                 onTurnIntoBlock={turnIntoBlock}
                 onOpenSlashMenu={handleOpenSlashMenu}
                 onBackgroundClick={handleBackgroundClick}
+                onReorderBlocks={reorderBlocks}
                 isScrollLocked={slashMenu.isOpen}
             />
 

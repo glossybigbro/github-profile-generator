@@ -7,39 +7,40 @@ import { generateProgressBar } from '@/entities/profile/lib/markdown/utils'
 
 export class GitHubLanguagesGenerator {
     static generate(config: ExtendedGeneratorConfig, section: MarkdownSection): string {
-        const { activityStats } = config
+        const { activityStats, blocks } = config
         const limit = activityStats?.itemCount || 5
 
-        // NOTE: In a real scenario, we would process config.repos here.
-        // Since we don't have the full GitHub data fetching logic wired into the `generator.ts` config yet,
-        // We will output a placeholder template that gets filled, OR 
-        // we accept that this generator relies on data that might need to be passed in.
+        // Find the weekly-languages widget block to get its config
+        const weeklyLanguagesBlock = blocks?.find(
+            (block: any) => block.type === 'widget' && block.widgetType === 'weekly-languages'
+        )
 
-        // For the purpose of this task (Visual structure), we will generate a static example 
-        // or derived from strict mock data if real data isn't available.
-        // Let's assume we want to show the structure.
+        // Use real data from block config if available
+        const blockConfig = weeklyLanguagesBlock ? (weeklyLanguagesBlock as any).config : {}
+        const useRealData = blockConfig.useRealData || false
+        const realData = blockConfig.realData || null
 
         const title = '💬 Weekly Languages'
-        // markdown += `\n${title}\n` // Remove outer title
         let markdown = '```text\n'
-        markdown += `${title}\n\n` // Add inner title
+        markdown += `${title}\n\n`
 
-        // We will use some mock data to demonstrate the "Repo" metric requested
-        // In production, calculating this from 100+ repos takes time, so we'd do it in the "Analysis" step
-        // and pass the result to the generator.
+        let languages: Array<{ name: string; count: number; percent: number }>
 
-        const languages = [
-            { name: 'TypeScript', count: 12, percent: 45 },
-            { name: 'Python', count: 8, percent: 30 },
-            { name: 'HTML', count: 5, percent: 15 },
-            { name: 'CSS', count: 3, percent: 10 }
-        ].slice(0, limit)
+        if (useRealData && realData && realData.length > 0) {
+            // Use real GitHub data
+            languages = realData.slice(0, limit)
+        } else {
+            // Use mock data as fallback
+            languages = [
+                { name: 'TypeScript', count: 12, percent: 45 },
+                { name: 'Python', count: 8, percent: 30 },
+                { name: 'HTML', count: 5, percent: 15 },
+                { name: 'CSS', count: 3, percent: 10 }
+            ].slice(0, limit)
+        }
 
         languages.forEach(lang => {
             const bar = generateProgressBar(lang.percent, 25)
-            // Format: Python    1 hr 38 mins    |||||||...   24.85 %
-            // New Format: Python    12 Repos       |||||||...   45 %
-
             const namePad = lang.name.padEnd(15, ' ')
             const statPad = `${lang.count} Repos`.padEnd(15, ' ')
             const percentPad = `${lang.percent} %`.padStart(7, ' ')

@@ -1,5 +1,6 @@
 import { getGenerator } from './strategies'
 import { GeneratorConfig, MarkdownSection } from './types'
+import { generateMarkdownFromBlocks } from './blockGenerator'
 
 /**
  * Extended Generator Configuration
@@ -13,22 +14,20 @@ type ExtendedGeneratorConfig = GeneratorConfig & { sections: MarkdownSection[] }
  * Generate Complete Markdown Profile
  * 
  * @description
- * Main entry point for markdown generation. Iterates through enabled sections
- * and delegates to appropriate generators to build the complete profile.
+ * Main entry point for markdown generation.
+ * - PRIORITY: If `config.blocks` exists and has content, use WYSIWYG block generator.
+ * - FALLBACK: If no blocks, use legacy section-based generation.
  * 
- * @param config - Complete configuration including sections array
+ * @param config - Complete configuration including sections array and blocks
  * @returns Generated markdown string
- * 
- * @example
- * ```ts
- * const markdown = generateMarkdown({
- *   username: 'octocat',
- *   sections: [{ id: 'activity-graph', enabled: true, ... }],
- *   ...otherConfig
- * })
- * ```
  */
 export function generateMarkdown(config: ExtendedGeneratorConfig): string {
+    // 1. WYSIWYG Block-based Generation (Primary)
+    if (config.blocks && config.blocks.length > 0) {
+        return generateMarkdownFromBlocks(config.blocks, config)
+    }
+
+    // 2. Legacy Section-based Generation (Fallback)
     const { sections } = config
 
     // Filter only enabled sections (assumes sections are already sorted)
@@ -85,3 +84,4 @@ export function generateMarkdown(config: ExtendedGeneratorConfig): string {
 
     return markdown
 }
+

@@ -3,7 +3,7 @@ import { getHabitLabel } from '@/entities/profile/lib/markdown/ascii-art'
 import styles from '@/shared/styles/SectionSettings.module.css'
 import { useProductiveTimeSettings } from '@/features/section-stats/model/useProductiveTimeSettings'
 
-export function ProductiveTimeSettings() {
+export function ProductiveTimeSettings({ blockId }: { blockId?: string | null }) {
     const {
         accentColor,
         productiveTime,
@@ -12,7 +12,7 @@ export function ProductiveTimeSettings() {
         handleAnalyze,
         getSelectedStyle,
         username
-    } = useProductiveTimeSettings()
+    } = useProductiveTimeSettings(blockId || undefined)
 
     return (
         <div className={styles.popOverContent}>
@@ -65,6 +65,23 @@ export function ProductiveTimeSettings() {
                         <span style={{ color: '#8b5cf6' }}>{getHabitLabel(productiveTime.stats)} detected! 🦉</span>
                     </div>
                 )}
+            </div>
+
+            {/* Add to Canvas Button */}
+            <div className={styles.settingsSection}>
+                <button
+                    onClick={() => {
+                        window.dispatchEvent(new CustomEvent('productive-time-add'))
+                    }}
+                    className={styles.addToCanvasButton}
+                    style={{
+                        backgroundColor: accentColor,
+                        borderColor: accentColor,
+                        color: 'white'
+                    }}
+                >
+                    <span>✨</span> Add to Canvas
+                </button>
             </div>
         </div>
     )

@@ -106,6 +106,9 @@ export interface GeneratorConfig {
     // Sections
     sections: MarkdownSection[]
 
+    // Block configurations (for widget-specific settings)
+    blocks?: any[]
+
     // Weekly Settings
     weeklyLanguages?: {
         style: 'progress' | 'emoji' | 'compact'

@@ -17,6 +17,7 @@ import {
 } from '@/features/section-bio/config/bioConstants'
 import { SortableBulletItem } from './SortableBulletItem'
 import { memo } from 'react'
+import { useProfileStore } from '@/entities/profile/model/useProfileStore'
 
 /**
  * 심플 바이오 설정 컴포넌트
@@ -40,7 +41,15 @@ export const SimpleBioSettings = memo(function SimpleBioSettings() {
         sensors
     } = useBioEditor()
 
-    if (!bio) return null
+    if (!bio) {
+        return (
+            <div className={styles.popOverContent}>
+                <div style={{ padding: '20px', color: '#ff4d4d', textAlign: 'center' }}>
+                    Bio data is missing. Please check ProfileStore.
+                </div>
+            </div>
+        )
+    }
 
     return (
         <div className={styles.popOverContent}>
@@ -152,6 +161,22 @@ export const SimpleBioSettings = memo(function SimpleBioSettings() {
                         </div>
                     )}
                 </div>
+            </div>
+            {/* Section 3: Add to Canvas Button */}
+            <div className={styles.settingsSection}>
+                <button
+                    onClick={() => {
+                        window.dispatchEvent(new CustomEvent('bio-add'))
+                    }}
+                    className={styles.addToCanvasButton}
+                    style={{
+                        backgroundColor: useProfileStore.getState().accentColor,
+                        borderColor: useProfileStore.getState().accentColor,
+                        color: 'white'
+                    }}
+                >
+                    {BIO_UI_LABELS.ADD_TO_CANVAS}
+                </button>
             </div>
         </div>
     )

@@ -4,7 +4,9 @@ import { MARKDOWN_URLS } from '@/entities/profile/config/urls'
 import styles from '@/shared/styles/SectionSettings.module.css'
 import { useActivityGraphSettings } from '@/features/section-stats/model/useActivityGraphSettings'
 
-export function ActivityGraphSettings() {
+import { useProfileStore } from '@/entities/profile/model/useProfileStore'
+
+export function ActivityGraphSettings({ blockId }: { blockId?: string | null }) {
     const {
         activityGraphTheme,
         setActivityGraphTheme,
@@ -22,7 +24,7 @@ export function ActivityGraphSettings() {
         setActivityGraphRadius,
         activityGraphCustomTitle,
         setActivityGraphCustomTitle
-    } = useActivityGraphSettings()
+    } = useActivityGraphSettings(blockId || undefined)
 
     return (
         <div className={styles.popOverContent}>
@@ -156,6 +158,23 @@ export function ActivityGraphSettings() {
                         </div>
                     ))}
                 </div>
+            </div>
+
+            {/* Add to Canvas Button */}
+            <div className={styles.settingsSection}>
+                <button
+                    onClick={() => {
+                        window.dispatchEvent(new CustomEvent('activity-graph-add'))
+                    }}
+                    className={styles.addToCanvasButton}
+                    style={{
+                        backgroundColor: useProfileStore.getState().accentColor,
+                        borderColor: useProfileStore.getState().accentColor,
+                        color: 'white'
+                    }}
+                >
+                    <span>✨</span> Add to Canvas
+                </button>
             </div>
 
             {/* More Info Link */}

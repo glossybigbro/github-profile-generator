@@ -17,7 +17,7 @@ import { createWidgetBlock } from '@/entities/block/model/blockUtils'
 
 export function useSectionBuilder() {
     const { sections, toggleSection: toggleProfileSection, reorderSections } = useProfileStore()
-    const { addBlock, removeBlock, blocks } = useBlockStore()
+    const { addBlock, addBlockAtCursor, removeBlock, blocks, activeBlockId } = useBlockStore()
 
     const sensors = useSensors(
         useSensor(MouseSensor),
@@ -43,28 +43,101 @@ export function useSectionBuilder() {
         }
     }
 
+    // Add a widget instance (supports duplicates)
+    const addWidget = (sectionId: string) => {
+        const section = sections.find(s => s.id === sectionId)
+        if (!section) return
+
+        // Enable in profile store if first widget
+        if (!section.enabled) {
+            toggleProfileSection(sectionId)
+        }
+
+        // Get default config from ProfileStore for this widget type
+        let defaultConfig: Record<string, any> = {}
+
+        if (sectionId === 'weekly-languages') {
+            // Copy global settings as initial config for this instance
+            const profileState = useProfileStore.getState()
+            defaultConfig = { weeklyLanguages: { ...profileState.weeklyLanguages } }
+        } else if (sectionId === 'weekly-projects') {
+            const profileState = useProfileStore.getState()
+            defaultConfig = { weeklyProjects: { ...profileState.weeklyProjects } }
+        } else if (sectionId === 'activity-graph') {
+            const {
+                activityGraphTheme,
+                activityGraphAreaFill,
+                activityGraphHideBorder,
+                activityGraphHideTitle,
+                activityGraphGrid,
+                activityGraphDays,
+                activityGraphRadius,
+                activityGraphCustomTitle
+            } = useProfileStore.getState()
+
+            defaultConfig = {
+                activityGraphTheme,
+                activityGraphAreaFill,
+                activityGraphHideBorder,
+                activityGraphHideTitle,
+                activityGraphGrid,
+                activityGraphDays,
+                activityGraphRadius,
+                activityGraphCustomTitle
+            }
+        } else if (sectionId === 'productive-time') {
+            const profileState = useProfileStore.getState()
+            defaultConfig = { productiveTime: { ...profileState.productiveTime } }
+        }
+        // Add more widget types here as needed
+
+        // Always add widget with independent config!
+        addBlockAtCursor(createWidgetBlock(sectionId, defaultConfig))
+    }
+
+    // Remove all widgets of a type and disable section
+    const removeAllWidgets = (sectionId: string) => {
+        const section = sections.find(s => s.id === sectionId)
+        if (!section) return
+
+        // Remove all widgets of this type
+        const widgetsToRemove = blocks.filter(b => b.type === 'widget' && (b as any).widgetType === sectionId)
+        widgetsToRemove.forEach(widget => removeBlock(widget.id))
+
+        // Disable in profile store
+        if (section.enabled) {
+            toggleProfileSection(sectionId)
+        }
+    }
+
+    // Legacy toggle function (for non-customizable sections)
     const toggleSection = (sectionId: string) => {
         const section = sections.find(s => s.id === sectionId)
         if (!section) return
 
-        // 1. Toggle in Profile Store (Left Panel UI)
-        toggleProfileSection(sectionId)
-
-        // 2. Sync with Block Store (Right Panel Editor)
-        // If currently disabled -> enabling -> Add Block
         if (!section.enabled) {
-            // Check if already exists to avoid duplicates (optional safety)
-            const exists = blocks.some(b => b.type === 'widget' && (b as any).widgetType === section.id)
-            if (!exists) {
-                addBlock(createWidgetBlock(section.id, {}))
-            }
+            addWidget(sectionId)
+        } else {
+            removeAllWidgets(sectionId)
         }
-        // If currently enabled -> disabling -> Remove Block
-        else {
-            const blockToRemove = blocks.find(b => b.type === 'widget' && (b as any).widgetType === section.id)
-            if (blockToRemove) {
-                removeBlock(blockToRemove.id)
-            }
+    }
+
+    // Finalize widget: Add empty line if widget is at last position
+    const finalizeWidget = (sectionId: string) => {
+        const widgetBlock = blocks.find(b => b.type === 'widget' && (b as any).widgetType === sectionId)
+        if (!widgetBlock) return
+
+        const widgetIndex = blocks.findIndex(b => b.id === widgetBlock.id)
+        const isLastBlock = widgetIndex === blocks.length - 1
+
+        // Only add empty line if widget is at the last position
+        if (isLastBlock) {
+            addBlock({
+                id: `block-${Date.now()}-empty`,
+                type: 'text',
+                content: '',
+                createdAt: Date.now()
+            }, widgetIndex + 1)
         }
     }
 
@@ -72,6 +145,9 @@ export function useSectionBuilder() {
         sections,
         sensors,
         handleDragEnd,
-        toggleSection
+        toggleSection,
+        addWidget,
+        removeAllWidgets,
+        finalizeWidget
     }
 }

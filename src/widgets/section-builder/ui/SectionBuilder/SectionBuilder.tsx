@@ -11,7 +11,7 @@ import styles from '@/shared/styles/SectionSettings.module.css'
 import { SectionGroup } from '../SectionGroup'
 
 export function SectionBuilder() {
-    const { sections, sensors, handleDragEnd, toggleSection } = useSectionBuilder()
+    const { sections, sensors, handleDragEnd, toggleSection, addWidget, finalizeWidget } = useSectionBuilder()
 
     // 그룹별로 섹션 분류 (순서는 유지되지만, 렌더링 시 그룹화)
     // *주의: 드래그 앤 드롭을 전체 리스트에서 하려면 그룹화 UI가 복잡해질 수 있음.
@@ -44,6 +44,8 @@ export function SectionBuilder() {
                             label={label}
                             sections={sections.filter(s => s.category === category)}
                             onToggle={toggleSection}
+                            onAdd={addWidget}
+                            onFinalize={finalizeWidget}
                         />
                     ))}
                 </div>

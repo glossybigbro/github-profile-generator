@@ -1,6 +1,7 @@
 export const BLOCK_TYPES = {
     HEADER: 'header',
     TEXT: 'text',
+    BULLET: 'bullet', // Added Bullet type
     DIVIDER: 'divider',
     WIDGET: 'widget',
 } as const

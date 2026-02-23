@@ -15,13 +15,17 @@ interface SectionGroupProps {
     label: string
     sections: Section[]
     onToggle: (id: string) => void
+    onAdd?: (id: string) => void // For customizable sections
+    onFinalize?: (id: string) => void
 }
 
 export function SectionGroup({
     category,
     label,
     sections,
-    onToggle
+    onToggle,
+    onAdd,
+    onFinalize
 }: SectionGroupProps) {
     const [isOpen, setIsOpen] = useState(true)
 
@@ -49,6 +53,8 @@ export function SectionGroup({
                                 key={section.id}
                                 section={section}
                                 onToggle={onToggle}
+                                onAdd={onAdd}
+                                onFinalize={onFinalize}
                             />
                         ))}
                     </SortableContext>

@@ -15,7 +15,12 @@ export function usePreviewPanel() {
     const store = useProfileStore()
 
     const generateConfig = () => {
-        return transformStoreToConfig(store)
+        const { useBlockStore } = require('@/entities/block/model/useBlockStore')
+        const blocks = useBlockStore.getState().blocks
+        return {
+            ...transformStoreToConfig(store),
+            blocks
+        }
     }
 
     const getGeneratedMarkdown = () => {

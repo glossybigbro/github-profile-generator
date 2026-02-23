@@ -1,18 +1,8 @@
-.canvas {
+.canvasContainer {
     display: flex;
     flex-direction: column;
     flex: 1;
     width: 100%;
-    /* Notion Page Standard: ~900px - 960px max width for centered content */
-    max-width: 1100px;
-    margin: 0 auto;
-
-    /* Notion Layout: Significant top padding (Title Area room) */
-    padding: 80px 60px 150px 60px;
-    /* Bottom padding for scroll space */
-
-    /* min-height: 100% removed to prevent flex container overflow clipping */
-
     /* Transparent, just layout */
     background: transparent;
     border: none;
@@ -29,8 +19,38 @@
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
-.canvas::-webkit-scrollbar {
+.canvasContainer::-webkit-scrollbar {
     display: none;
+}
+
+.canvasContent {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    /* Notion Page Standard: ~900px - 960px max width for centered content */
+    max-width: 1100px;
+    margin: 0 auto;
+
+    /* Notion Layout: Significant top padding (Title Area room) */
+    padding: 80px 60px 150px 60px;
+    /* Bottom padding for scroll space */
+    min-height: 100%;
+}
+
+/* Global class for cross-module hover detection */
+:global(.block-wrapper-with-handle) {
+    position: relative;
+}
+
+/* Extend hover area to the left to include the handle */
+:global(.block-wrapper-with-handle)::before {
+    content: '';
+    position: absolute;
+    left: -50px;
+    top: 0;
+    width: 50px;
+    height: 100%;
+    pointer-events: auto;
 }
 
 .clickArea {
@@ -48,10 +68,107 @@
     color: rgba(255, 255, 255, 0.4);
     font-size: 1rem;
     text-align: center;
+    cursor: text;
 }
 
-@media (max-width: 768px) {
-    .canvas {
-        padding: 40px 24px 80px 24px;
+
+.clickArea {
+    flex: 1;
+    min-height: 100px;
+    /* Clickable space at bottom */
+    cursor: text;
+}
+
+.emptyState {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40vh;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 1rem;
+    text-align: center;
+    cursor: text;
+}
+
+/* Drag and Drop Visual Feedback */
+.dragOverlay {
+    cursor: grabbing !important;
+    opacity: 0.9;
+    transform: scale(1.02);
+    box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.5),
+        0 0 30px rgba(0, 217, 255, 0.3);
+    border-radius: 8px;
+    background: rgba(22, 27, 34, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 217, 255, 0.2);
+}
+
+/* Hide the original block when dragging */
+:global(.block-wrapper-with-handle) {
+    transition: opacity 0.2s;
+}
+
+/* Drop indicator line */
+:global(.sortable-drop-indicator) {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(0, 217, 255, 0.8) 10%,
+            rgba(0, 217, 255, 1) 50%,
+            rgba(0, 217, 255, 0.8) 90%,
+            transparent 100%);
+    box-shadow: 0 0 8px rgba(0, 217, 255, 0.6);
+    pointer-events: none;
+    z-index: 999;
+    animation: pulseGlow 1s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+
+    0%,
+    100% {
+        box-shadow: 0 0 8px rgba(0, 217, 255, 0.6);
     }
+
+    50% {
+        box-shadow: 0 0 16px rgba(0, 217, 255, 0.9);
+    }
+}
+
+/* 
+ * 🟦 Selection Box (Drag-to-Select)
+ */
+.selectionBox {
+    position: fixed;
+    /* Fixed to viewport so it doesn't jump with scroll during draw */
+    background-color: rgba(59, 130, 246, 0.2);
+    /* Light blue, translucent */
+    border: 1px solid rgba(59, 130, 246, 0.6);
+    pointer-events: none;
+    /* Must not interfere with mouse events underneath */
+    z-index: 9999;
+}
+
+/* Drag Overlay Badge */
+.multiDragBadge {
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    background: rgba(0, 217, 255, 0.9);
+    color: #000;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 217, 255, 0.4);
+    z-index: 100;
+    pointer-events: none;
+    line-height: 1;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
 }

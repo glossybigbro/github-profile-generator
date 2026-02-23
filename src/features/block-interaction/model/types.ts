@@ -8,5 +8,5 @@ export interface BlockEventContext {
     onInsertBlockAfter: (prevId: string, newBlock: Block, shouldFocus?: boolean) => void
     onAddBlock: (block: Block, index?: number, shouldFocus?: boolean) => void
     onUpdateBlock: (id: string, updates: Partial<Block>) => void
-    onTurnIntoBlock: (id: string, newBlock: Block) => void
+    onTurnIntoBlock: (id: string, newBlock: Block, maintainContent?: boolean) => void
 }

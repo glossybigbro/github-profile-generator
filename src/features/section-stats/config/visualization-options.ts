@@ -37,3 +37,13 @@ export const PROJECT_SORT_OPTIONS: { id: 'commits' | 'alphabetical' | 'recent', 
     { id: 'alphabetical', name: 'Alphabetical' },
     { id: 'recent', name: 'Recently Active' }
 ]
+
+export const THEME_COLORS = [
+    { id: 'blue', name: 'Blue', hex: '#3b82f6', emoji: { square: '🟦', circle: '🔵' } },
+    { id: 'green', name: 'Green', hex: '#22c55e', emoji: { square: '🟩', circle: '🟢' } },
+    { id: 'purple', name: 'Purple', hex: '#a855f7', emoji: { square: '🟪', circle: '🟣' } },
+    { id: 'orange', name: 'Orange', hex: '#f97316', emoji: { square: '🟧', circle: '🟠' } },
+    { id: 'red', name: 'Red', hex: '#ef4444', emoji: { square: '🟥', circle: '🔴' } }
+] as const
+
+export type MetricColor = typeof THEME_COLORS[number]['id']

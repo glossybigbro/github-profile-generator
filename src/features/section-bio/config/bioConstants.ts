@@ -10,6 +10,7 @@ export const BIO_UI_LABELS = {
     DETAILS: 'Details (Bullets)',
     ADD_BULLET: '+ Add Bullet Item',
     REMOVE_ITEM: 'Remove item',
+    ADD_TO_CANVAS: '✨ Add to Canvas',
 } as const
 
 export const BIO_PLACEHOLDERS = {
