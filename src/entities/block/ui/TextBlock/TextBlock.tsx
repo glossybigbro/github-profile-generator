@@ -6,8 +6,9 @@ import { EditableBlock } from '../EditableBlock'
 import { PLACEHOLDER_TEXT, SLASH_TRIGGER_CHAR } from '@/entities/block/config/constants'
 import styles from './TextBlock.module.css'
 
-import { markdownToHtml, htmlToMarkdown, getSmartCursorPosition, mapHtmlOffsetToMarkdownOffset } from '@/shared/lib/markdown/simpleConverter'
+import { markdownToHtml, htmlToMarkdown, getSmartCursorPosition, mapHtmlOffsetToMarkdownOffset, restoreCursorToOffset } from '@/shared/lib/markdown/simpleConverter'
 import { useSelectionStore } from '@/entities/block/model/useSelectionStore'
+import { useBlockStore } from '@/entities/block/model/useBlockStore'
 import { copyBlocksToClipboard } from '@/entities/block/model/blockClipboard'
 
 interface TextBlockProps {
@@ -55,8 +56,18 @@ export function TextBlock({
         const targetMarkdown = block.content || ''
         const expectedHtml = markdownToHtml(targetMarkdown)
 
-        // Check if DOM matches expected HTML
+        // ─── CRITICAL: NATIVE UNDO PROTECTION ───
+        // We MUST NOT overwrite innerHTML if the content is functionally identical.
+        // Overwriting innerHTML destroys the browser's native text undo stack (Cmd+Z).
         if (contentRef.current.innerHTML === expectedHtml) {
+            return
+        }
+
+        // Sometimes the user types 'A', the DOM is 'A' (text node), but `expectedHtml` is `A`. 
+        // We can compare the generated markdown of the *current* DOM against targetMarkdown.
+        const currentHtml = contentRef.current.innerHTML
+        const currentMarkdown = (currentHtml === '<br>' || currentHtml === '') ? '' : htmlToMarkdown(currentHtml)
+        if (currentMarkdown === targetMarkdown) {
             return
         }
 
@@ -65,66 +76,20 @@ export function TextBlock({
             return
         }
 
-        // Smart Cursor Logic
-        const selection = window.getSelection()
-        let rawCursorOffset = 0
+        // --- UNDO/REDO ARCHITECTURAL RESTORATION ---
+        // If we reach here, innerHTML !== expectedHtml. The text changed externally (Zundo Undo/Redo or Sync).
+        // The current standard DOM cursor is unreliable. We MUST restore to the exact Markdown offset saved in the global snapshot!
+        const storeCursor = useBlockStore.getState().cursorPosition
+        // If no cursor was tracked, fallback to the end of the newly restored text
+        const targetMarkdownOffset = typeof storeCursor === 'number' ? storeCursor : targetMarkdown.length
 
-        if (selection && selection.rangeCount > 0 && contentRef.current.contains(selection.anchorNode)) {
-            // Standard text offset in current DOM
-            const range = selection.getRangeAt(0)
-            const preRange = document.createRange()
-            preRange.selectNodeContents(contentRef.current)
-            preRange.setEnd(range.endContainer, range.endOffset)
-            rawCursorOffset = preRange.toString().length
-        }
-
-        const targetOffset = getSmartCursorPosition(targetMarkdown, rawCursorOffset)
+        const targetOffset = getSmartCursorPosition(targetMarkdown, targetMarkdownOffset)
 
         // Force update to match WYSIWYG expectation
         contentRef.current.innerHTML = expectedHtml
 
         if (isActive) {
-            try {
-                // Restore cursor to correct position
-                const walker = document.createTreeWalker(contentRef.current, NodeFilter.SHOW_TEXT, null)
-                let currentPos = 0
-                let targetNode = null
-                let targetLocalOffset = 0
-
-                while (walker.nextNode()) {
-                    const node = walker.currentNode
-                    const length = node.textContent?.length || 0
-
-                    if (currentPos + length >= targetOffset) {
-                        targetNode = node
-                        targetLocalOffset = targetOffset - currentPos
-                        break
-                    }
-                    currentPos += length
-                }
-
-                if (targetNode) {
-                    const newRange = document.createRange()
-                    // Clamp offset to node length to be safe
-                    const safeOffset = Math.min(targetLocalOffset, targetNode.textContent?.length || 0)
-
-                    newRange.setStart(targetNode, safeOffset)
-                    newRange.collapse(true)
-                    const sel = window.getSelection()
-                    sel?.removeAllRanges()
-                    sel?.addRange(newRange)
-                } else {
-                    // Fallback to end
-                    const range = document.createRange()
-                    range.selectNodeContents(contentRef.current)
-                    range.collapse(false)
-                    const sel = window.getSelection()
-                    sel?.removeAllRanges()
-                    sel?.addRange(range)
-                }
-            } catch (e) {
-                // Ignore selection errors
-            }
+            restoreCursorToOffset(contentRef.current, targetOffset)
         }
     }, [block.content, isActive, isComposing])
 
@@ -140,14 +105,28 @@ export function TextBlock({
         // Always keep styles.markdownPreview applied
     }, [isSelected])
 
-    // Focus management
+    // Focus management: programmatic focus on activation (Undo/Redo, Arrow keys, Enter)
     useEffect(() => {
         if (contentRef.current && isActive) {
-            // Only focus if not already focused (to prevent fighting)
-            if (document.activeElement !== contentRef.current) {
-                // We focus it but we do NOT manually reset the cursor range. 
-                // Natively clicking it or drag-selecting text inside it already correctly places the cursor/selection!
+            const alreadyFocused = document.activeElement === contentRef.current
+            const sel = window.getSelection()
+            const hasCursorHere = sel && sel.rangeCount > 0 && contentRef.current.contains(sel.anchorNode)
+
+            if (!alreadyFocused) {
                 contentRef.current.focus()
+            }
+
+            // If the cursor is NOT already positioned inside this block (e.g. programmatic focus from Undo/Redo),
+            // restore it to the EXACT Markdown offset that was snapshotted by Zundo into the store.
+            // We use requestAnimationFrame to ensure this happens after Zundo finishes writing new state.
+            if (!hasCursorHere) {
+                requestAnimationFrame(() => {
+                    if (!contentRef.current) return
+                    const storeCursor = useBlockStore.getState().cursorPosition
+                    const content = block.content || ''
+                    const targetOffset = getSmartCursorPosition(content, storeCursor ?? content.length)
+                    restoreCursorToOffset(contentRef.current, targetOffset)
+                })
             }
         }
     }, [isActive, block.id])
@@ -208,6 +187,21 @@ export function TextBlock({
             const markdown = (html === '<br>' || html === '') ? '' : htmlToMarkdown(html)
 
             if (markdown !== block.content) {
+                // Calculate exact Markdown offset to bundle with the Zundo snapshot
+                const selection = window.getSelection()
+                let visualOffset = 0
+                if (selection && selection.rangeCount > 0 && contentRef.current.contains(selection.anchorNode)) {
+                    const range = selection.getRangeAt(0)
+                    const preRange = document.createRange()
+                    preRange.selectNodeContents(contentRef.current)
+                    preRange.setEnd(range.endContainer, range.endOffset)
+                    visualOffset = preRange.toString().length
+                }
+                const markdownOffset = mapHtmlOffsetToMarkdownOffset(markdown, visualOffset)
+
+                // Pre-emptively record the cursor so the subsequent state update snapshots them perfectly together
+                useBlockStore.getState().setCursorPosition(markdownOffset)
+
                 onUpdate({ content: markdown })
             }
 
@@ -254,6 +248,9 @@ export function TextBlock({
 
         // Update store — useLayoutEffect re-renders markdown → HTML immediately
         onUpdate({ content: newMarkdown })
+
+        // Ensure cursor is placed at the end of the pasted text
+        useBlockStore.getState().setCursorPosition(mdInsertOffset + textToInsert.length)
     }
 
     const isEmpty = !block.content || block.content === '\n'

@@ -231,3 +231,44 @@ export const mapHtmlOffsetToMarkdownOffset = (markdown: string, htmlOffset: numb
 
     return mdIndex
 }
+
+
+export const restoreCursorToOffset = (element: HTMLElement | null, targetOffset: number) => {
+    if (!element) return
+
+    try {
+        const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null)
+        let currentPos = 0
+        let targetNode = null
+        let targetLocalOffset = 0
+
+        while (walker.nextNode()) {
+            const node = walker.currentNode
+            const length = node.textContent?.length || 0
+
+            if (currentPos + length >= targetOffset) {
+                targetNode = node
+                targetLocalOffset = targetOffset - currentPos
+                break
+            }
+            currentPos += length
+        }
+
+        const newRange = document.createRange()
+        if (targetNode) {
+            const safeOffset = Math.min(targetLocalOffset, targetNode.textContent?.length || 0)
+            newRange.setStart(targetNode, safeOffset)
+            newRange.collapse(true)
+        } else {
+            // Fallback to end
+            newRange.selectNodeContents(element)
+            newRange.collapse(false)
+        }
+
+        const sel = window.getSelection()
+        sel?.removeAllRanges()
+        sel?.addRange(newRange)
+    } catch (e) {
+        // Ignore selection errors
+    }
+}

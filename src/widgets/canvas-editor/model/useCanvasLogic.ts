@@ -159,6 +159,71 @@ export function useCanvasLogic() {
 
             const hasMultiSelection = selectedIds.size > 1
 
+            // ─ Cmd+Z / Ctrl+Z: Undo / Redo ─
+            if (e.key === 'z' && (e.metaKey || e.ctrlKey)) {
+                e.preventDefault()
+                // If a user is actively typing, the block's useLayoutEffect might be skipping updates.
+                // We blur the active element to force a definitive DOM state before undoing.
+                if (isTyping && document.activeElement instanceof HTMLElement) {
+                    document.activeElement.blur()
+                }
+
+                if (e.shiftKey) {
+                    useBlockStore.temporal.getState().redo()
+                } else {
+                    useBlockStore.temporal.getState().undo()
+                }
+                return
+            }
+            // ─ Ctrl+Y: Redo (Windows) ─
+            if (e.key === 'y' && (e.metaKey || e.ctrlKey)) {
+                e.preventDefault()
+                if (isTyping && document.activeElement instanceof HTMLElement) {
+                    document.activeElement.blur()
+                }
+                useBlockStore.temporal.getState().redo()
+                return
+            }
+
+            // ─ Cmd+A: Select All (Staged Notion Logic) ─
+            if (e.key === 'a' && (e.metaKey || e.ctrlKey)) {
+                if (activeBlockId) {
+                    const selection = window.getSelection()
+                    let isFullySelected = false
+
+                    if (selection && selection.rangeCount > 0) {
+                        const el = document.getElementById(`block-${activeBlockId}`)
+                        if (el) {
+                            const range = selection.getRangeAt(0)
+                            const fullRange = document.createRange()
+                            fullRange.selectNodeContents(el)
+
+                            // Check if the current selection covers the entire contentEditable node exactly
+                            isFullySelected = (
+                                range.compareBoundaryPoints(Range.START_TO_START, fullRange) <= 0 &&
+                                range.compareBoundaryPoints(Range.END_TO_END, fullRange) >= 0
+                            ) || selection.toString().trim() === el.innerText.trim()
+                        }
+                    }
+
+                    if (isFullySelected) {
+                        e.preventDefault()
+                        const allIds = allBlocks.map(b => b.id)
+                        useSelectionStore.getState().selectAll(allIds)
+                            // Remove focus from the text element so we enter block-selection mode
+                            ; (document.activeElement as HTMLElement)?.blur()
+                        return
+                    }
+                    // Else: allow default browser behavior (which selects all text inside the contentEditable)
+                } else if (!isTyping) {
+                    // If no block is actively focused, select all blocks immediately
+                    e.preventDefault()
+                    const allIds = allBlocks.map(b => b.id)
+                    useSelectionStore.getState().selectAll(allIds)
+                    return
+                }
+            }
+
             // ─ Cmd+C: Copy ─
             // NOTE: handled BEFORE targetIds guard — text selection works regardless of activeBlockId
             if (e.key === 'c' && (e.metaKey || e.ctrlKey)) {

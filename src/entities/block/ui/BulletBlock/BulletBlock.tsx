@@ -5,8 +5,9 @@ import { BulletBlock as BulletBlockType } from '@/entities/block/model/types'
 import { EditableBlock } from '../EditableBlock'
 import { PLACEHOLDER_TEXT, SLASH_TRIGGER_CHAR } from '@/entities/block/config/constants'
 import styles from './BulletBlock.module.css'
-import { markdownToHtml, htmlToMarkdown, getSmartCursorPosition } from '@/shared/lib/markdown/simpleConverter'
+import { markdownToHtml, htmlToMarkdown, getSmartCursorPosition, mapHtmlOffsetToMarkdownOffset, restoreCursorToOffset } from '@/shared/lib/markdown/simpleConverter'
 import { useSelectionStore } from '@/entities/block/model/useSelectionStore'
+import { useBlockStore } from '@/entities/block/model/useBlockStore'
 
 interface BulletBlockProps {
     block: BulletBlockType
@@ -58,61 +59,18 @@ export function BulletBlock({
             return
         }
 
-        // Smart Cursor Logic
-        const selection = window.getSelection()
-        let rawCursorOffset = 0
-        if (selection && selection.rangeCount > 0 && contentRef.current.contains(selection.anchorNode)) {
-            const range = selection.getRangeAt(0)
-            const preRange = document.createRange()
-            preRange.selectNodeContents(contentRef.current)
-            preRange.setEnd(range.endContainer, range.endOffset)
-            rawCursorOffset = preRange.toString().length
-        }
+        // --- UNDO/REDO ARCHITECTURAL RESTORATION ---
+        const storeCursor = useBlockStore.getState().cursorPosition
+        // If no cursor was tracked, fallback to the end of the newly restored text
+        const targetMarkdownOffset = typeof storeCursor === 'number' ? storeCursor : targetMarkdown.length
 
-        const targetOffset = getSmartCursorPosition(targetMarkdown, rawCursorOffset)
+        const targetOffset = getSmartCursorPosition(targetMarkdown, targetMarkdownOffset)
 
         contentRef.current.innerHTML = expectedHtml
 
         // Restore cursor to end if active
         if (isActive) {
-            try {
-                const walker = document.createTreeWalker(contentRef.current, NodeFilter.SHOW_TEXT, null)
-                let currentPos = 0
-                let targetNode = null
-                let targetLocalOffset = 0
-
-                while (walker.nextNode()) {
-                    const node = walker.currentNode
-                    const length = node.textContent?.length || 0
-
-                    if (currentPos + length >= targetOffset) {
-                        targetNode = node
-                        targetLocalOffset = targetOffset - currentPos
-                        break
-                    }
-                    currentPos += length
-                }
-
-                if (targetNode) {
-                    const newRange = document.createRange()
-                    const safeOffset = Math.min(targetLocalOffset, targetNode.textContent?.length || 0)
-                    newRange.setStart(targetNode, safeOffset)
-                    newRange.collapse(true)
-                    const sel = window.getSelection()
-                    sel?.removeAllRanges()
-                    sel?.addRange(newRange)
-                } else {
-                    // Fallback to end
-                    const range = document.createRange()
-                    range.selectNodeContents(contentRef.current)
-                    range.collapse(false)
-                    const sel = window.getSelection()
-                    sel?.removeAllRanges()
-                    sel?.addRange(range)
-                }
-            } catch (e) {
-                // Ignore
-            }
+            restoreCursorToOffset(contentRef.current, targetOffset)
         }
     }, [block.content, isActive, isComposing])
 
@@ -126,12 +84,27 @@ export function BulletBlock({
         // Always keep styles.markdownPreview applied
     }, [isSelected])
 
-    // Auto-focus and cursor-to-end when activated
+    // Focus management: programmatic focus on activation (Undo/Redo, Arrow keys, Enter)
     useEffect(() => {
         if (contentRef.current && isActive) {
-            // Only focus if not already focused
-            if (document.activeElement !== contentRef.current) {
+            const alreadyFocused = document.activeElement === contentRef.current
+            const sel = window.getSelection()
+            const hasCursorHere = sel && sel.rangeCount > 0 && contentRef.current.contains(sel.anchorNode)
+
+            if (!alreadyFocused) {
                 contentRef.current.focus()
+            }
+
+            // If not already positioned here, restore from Zundo snapshot
+            // requestAnimationFrame ensures this fires after Zundo finishes writing restored state
+            if (!hasCursorHere) {
+                requestAnimationFrame(() => {
+                    if (!contentRef.current) return
+                    const storeCursor = useBlockStore.getState().cursorPosition
+                    const content = block.content || ''
+                    const targetOffset = getSmartCursorPosition(content, storeCursor ?? content.length)
+                    restoreCursorToOffset(contentRef.current, targetOffset)
+                })
             }
         }
     }, [isActive, block.id])
@@ -149,6 +122,21 @@ export function BulletBlock({
             const markdown = (html === '<br>' || html === '') ? '' : htmlToMarkdown(html)
 
             if (markdown !== block.content) {
+                // Calculate exact Markdown offset to bundle with the Zundo snapshot
+                const selection = window.getSelection()
+                let visualOffset = 0
+                if (selection && selection.rangeCount > 0 && contentRef.current.contains(selection.anchorNode)) {
+                    const range = selection.getRangeAt(0)
+                    const preRange = document.createRange()
+                    preRange.selectNodeContents(contentRef.current)
+                    preRange.setEnd(range.endContainer, range.endOffset)
+                    visualOffset = preRange.toString().length
+                }
+                const markdownOffset = mapHtmlOffsetToMarkdownOffset(markdown, visualOffset)
+
+                // Pre-emptively record the cursor so the subsequent state update snapshots them perfectly together
+                useBlockStore.getState().setCursorPosition(markdownOffset)
+
                 onUpdate({ content: markdown })
             }
 

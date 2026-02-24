@@ -22,10 +22,8 @@ export function useSectionItem({ section, isLocked, onToggle, onAdd, onFinalize 
     const [activeWidgetBlockId, setActiveWidgetBlockId] = useState<string | null>(null)
     const popoverRef = useRef<HTMLDivElement>(null)
 
-    // Access block store safely (client-side only logic handled via useEffect or store logic)
-    // Zustand hooks are safe to call, but we might get hydration mismatch if store differs on server.
-    // However, since this is 'use client', standard usage is fine.
-    const { blocks, addBlocks, removeBlocksByPreviewId, replaceBlocksByPreviewId } = useBlockStore()
+    // Access block store safely
+    const { blocks, addBlocks, removeBlocksByPreviewId, replaceBlocksByPreviewId, commitPreviewBlocks } = useBlockStore()
 
     // State to track Bio preview transaction
     const [bioPreviewId, setBioPreviewId] = useState<string | null>(null)
@@ -52,6 +50,9 @@ export function useSectionItem({ section, isLocked, onToggle, onAdd, onFinalize 
 
                 // Clear preview ID as it's now committed
                 if (section.id === 'yaml-bio') {
+                    if (bioPreviewId) {
+                        commitPreviewBlocks(bioPreviewId)
+                    }
                     setBioPreviewId(null)
                 }
 
@@ -79,9 +80,8 @@ export function useSectionItem({ section, isLocked, onToggle, onAdd, onFinalize 
             window.removeEventListener('weekly-projects-add', handleAdd)
             window.removeEventListener('activity-graph-add', handleAdd)
             window.removeEventListener('productive-time-add', handleAdd)
-            window.removeEventListener('bio-add', handleAdd)
         }
-    }, [isSettingsOpen, section.id, onFinalize])
+    }, [isSettingsOpen, section.id, onFinalize, bioPreviewId, commitPreviewBlocks])
 
     // Cancel: Close panel and rollback preview
     useOnClickOutside(popoverRef, () => {

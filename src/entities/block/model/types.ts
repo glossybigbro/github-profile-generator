@@ -43,7 +43,7 @@ export type Block = HeaderBlock | TextBlock | BulletBlock | DividerBlock | Widge
 export interface CanvasEditorState {
     blocks: Block[]
     activeBlockId: string | null
-    cursorPosition: number
+    cursorPosition: number | null
 }
 
 // Editor Actions (inferred from the user's change request)
@@ -52,7 +52,7 @@ export interface EditorActions {
     updateBlock: (blockId: string, updates: Partial<Block>) => void
     turnIntoBlock: (blockId: string, newTypeBlock: Block, maintainContent?: boolean) => void
     setActiveBlock: (blockId: string | null, syncAnchor?: boolean) => void
-    setCursorPosition: (position: number) => void
+    setCursorPosition: (position: number | null) => void
 }
 
 // Mode
