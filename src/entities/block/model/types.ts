@@ -57,3 +57,15 @@ export interface EditorActions {
 
 // Mode
 export type EditorMode = 'edit' | 'preview'
+
+// Extensible Behavior Interfaces
+export interface BlockCopyBehavior {
+    /**
+     * Serializes a visual DOM selection into the clipboard plain text (e.g., Markdown).
+     * @param range - The partial or full DOM intersection Range of the drag selection covering this block element.
+     * @param block - The actual state object of the Block being copied.
+     * @param blockElement - The root DOM element of the block.
+     * @returns The extracted Markdown or serialized format for the clipboard.
+     */
+    serializeSelection: (range: Range, block: Block, blockElement: Element) => string
+}

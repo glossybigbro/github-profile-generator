@@ -6,8 +6,9 @@ import { EditableBlock } from '../EditableBlock'
 import { PLACEHOLDER_TEXT, SLASH_TRIGGER_CHAR } from '@/entities/block/config/constants'
 import styles from './TextBlock.module.css'
 
-import { markdownToHtml, htmlToMarkdown, getSmartCursorPosition } from '@/shared/lib/markdown/simpleConverter'
+import { markdownToHtml, htmlToMarkdown, getSmartCursorPosition, mapHtmlOffsetToMarkdownOffset } from '@/shared/lib/markdown/simpleConverter'
 import { useSelectionStore } from '@/entities/block/model/useSelectionStore'
+import { copyBlocksToClipboard } from '@/entities/block/model/blockClipboard'
 
 interface TextBlockProps {
     block: TextBlockType
@@ -218,11 +219,41 @@ export function TextBlock({
         }
     }
 
+
     const handlePaste = (e: React.ClipboardEvent) => {
         e.preventDefault()
-        const text = e.clipboardData.getData('text/plain')
-        // Insert plain text
-        document.execCommand('insertText', false, text)
+        if (!contentRef.current) return
+
+        // Prefer HTML clipboard data so bold/italic/links are preserved as markdown
+        // e.g. <strong>hello</strong> → **hello**, <a href="...">link</a> → [link](...)
+        const htmlData = e.clipboardData.getData('text/html')
+        const plainData = e.clipboardData.getData('text/plain')
+
+        // Convert HTML → markdown if available, otherwise fall back to plain text
+        const textToInsert = htmlData ? htmlToMarkdown(htmlData) : plainData
+        if (!textToInsert) return
+
+        const currentMarkdown = block.content || ''
+
+        // Get cursor offset in the rendered HTML (visual characters)
+        const selection = window.getSelection()
+        let htmlCursorOffset = 0
+        if (selection && selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0)
+            const preRange = document.createRange()
+            preRange.selectNodeContents(contentRef.current)
+            preRange.setEnd(range.startContainer, range.startOffset)
+            htmlCursorOffset = preRange.toString().length
+        }
+
+        // Map visual cursor offset → position in markdown source string
+        const mdInsertOffset = mapHtmlOffsetToMarkdownOffset(currentMarkdown, htmlCursorOffset)
+
+        // Insert the pasted markdown at the correct position
+        const newMarkdown = currentMarkdown.slice(0, mdInsertOffset) + textToInsert + currentMarkdown.slice(mdInsertOffset)
+
+        // Update store — useLayoutEffect re-renders markdown → HTML immediately
+        onUpdate({ content: newMarkdown })
     }
 
     const isEmpty = !block.content || block.content === '\n'

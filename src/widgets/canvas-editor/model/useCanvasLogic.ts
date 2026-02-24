@@ -4,6 +4,10 @@ import { useSlashMenuLogic } from '@/features/slash-command/model/useSlashMenuLo
 import { useSlashNavigation } from '@/features/slash-command/model/useSlashNavigation'
 import { SLASH_MENU_ITEMS } from '@/entities/block/config/constants'
 import { Block } from '@/entities/block/model/types'
+import { useBlockStore } from '@/entities/block/model/useBlockStore'
+import { copyBlocksToClipboard, getBlockClipboard, clearBlockClipboard } from '@/entities/block/model/blockClipboard'
+import { useSelectionStore } from '@/entities/block/model/useSelectionStore'
+import { BLOCK_BEHAVIORS } from '@/entities/block/lib/blockBehaviors'
 
 export function useCanvasLogic() {
     // 1. Core Editor Logic
@@ -18,6 +22,8 @@ export function useCanvasLogic() {
         insertBlockAfter,
         addBlock,
         removeBlock,
+        removeBlocks,
+        duplicateBlocks,
         turnIntoBlock,
         reorderBlocks
     } = editor
@@ -138,37 +144,156 @@ export function useCanvasLogic() {
         }
     }, [blocks, slashMenu.isOpen, handleCloseSlashMenu, setActiveBlock])
 
-    // 6. Bulk Actions Keyboard Listener
+    // 6. Block Keyboard Shortcuts — fully SYNCHRONOUS so e.preventDefault() works
     useEffect(() => {
         const handleGlobalKeyDown = (e: KeyboardEvent) => {
-            const { selectedIds, clearSelection } = import('@/entities/block/model/useSelectionStore').then(m => m.useSelectionStore.getState()) as any // We will import directly above
-            // Use direct state read to avoid reactivity loops on every keydown
-            import('@/entities/block/model/useSelectionStore').then(({ useSelectionStore }) => {
-                const state = useSelectionStore.getState()
-                if (state.selectedIds.size === 0) return
+            const target = e.target as HTMLElement
+            const isTyping = target.isContentEditable ||
+                target.tagName === 'INPUT' ||
+                target.tagName === 'TEXTAREA'
 
-                const idsArray = Array.from(state.selectedIds)
+            // Read store state synchronously
+            const { selectedIds, clearSelection } = useSelectionStore.getState()
+            const activeBlockId = useBlockStore.getState().activeBlockId
+            const allBlocks = useBlockStore.getState().blocks
 
-                // Bulk Delete
-                if (e.key === 'Backspace' || e.key === 'Delete') {
-                    // Prevent default backspace navigation if somehow active
-                    e.preventDefault()
-                    editor.removeBlocks(idsArray)
-                    state.clearSelection()
+            const hasMultiSelection = selectedIds.size > 1
+
+            // ─ Cmd+C: Copy ─
+            // NOTE: handled BEFORE targetIds guard — text selection works regardless of activeBlockId
+            if (e.key === 'c' && (e.metaKey || e.ctrlKey)) {
+                const selection = window.getSelection()
+                const hasTextSelection = !!selection?.toString().trim()
+
+                if (hasTextSelection && !hasMultiSelection && selection && selection.rangeCount > 0) {
+                    // Find ALL blocks that the text selection overlaps
+                    const selRange = selection.getRangeAt(0)
+                    const allDomBlocks = Array.from(document.querySelectorAll('[id^="block-"]'))
+                    const intersectingBlocks = allDomBlocks.filter(el => selRange.intersectsNode(el))
+
+                    if (intersectingBlocks.length > 0) {
+                        const copiedBlocks: Block[] = []
+
+                        for (let i = 0; i < intersectingBlocks.length; i++) {
+                            const blockEl = intersectingBlocks[i]
+                            const blockId = blockEl.id.replace('block-', '')
+                            const sourceBlock = allBlocks.find(b => b.id === blockId)
+                            if (!sourceBlock) continue
+
+                            // 1. Find the exact text selected within THIS block
+                            const blockRange = document.createRange()
+                            blockRange.selectNodeContents(blockEl)
+
+                            const intersectionRange = document.createRange()
+
+                            // Match Start Boundary
+                            if (selRange.compareBoundaryPoints(Range.START_TO_START, blockRange) > 0) {
+                                intersectionRange.setStart(selRange.startContainer, selRange.startOffset)
+                            } else {
+                                intersectionRange.setStart(blockRange.startContainer, blockRange.startOffset)
+                            }
+
+                            // Match End Boundary
+                            if (selRange.compareBoundaryPoints(Range.END_TO_END, blockRange) < 0) {
+                                intersectionRange.setEnd(selRange.endContainer, selRange.endOffset)
+                            } else {
+                                intersectionRange.setEnd(blockRange.endContainer, blockRange.endOffset)
+                            }
+
+                            // Locate the block's specific copy behavior strategy
+                            const behavior = BLOCK_BEHAVIORS[sourceBlock.type] || BLOCK_BEHAVIORS['text']
+                            const selectedContent = behavior.serializeSelection(intersectionRange, sourceBlock, blockEl)
+
+                            // 2. Apply Notion Logic
+                            if (i === 0) {
+                                // First Block: Check if selection starts at the very beginning
+                                const preSelectionRange = document.createRange()
+                                preSelectionRange.setStart(blockEl, 0)
+                                try {
+                                    preSelectionRange.setEnd(intersectionRange.startContainer, intersectionRange.startOffset)
+                                } catch { /* ignore */ }
+
+                                const startsAtBeginning = preSelectionRange.toString().trim().length === 0
+
+                                if (startsAtBeginning) {
+                                    // Preserve type
+                                    copiedBlocks.push('content' in sourceBlock
+                                        ? { ...sourceBlock, content: selectedContent } as Block
+                                        : sourceBlock)
+                                } else {
+                                    // Starts mid-block.
+                                    if (intersectingBlocks.length === 1) {
+                                        // If only ONE block is selected, just clear clipboard and let browser natively copy text
+                                        // so that pasting mid-sentence is seamless.
+                                        clearBlockClipboard()
+                                        return
+                                    } else {
+                                        // Multi-block: Downgrade first block to plain 'text' type
+                                        copiedBlocks.push({
+                                            ...sourceBlock,
+                                            type: 'text',
+                                            content: selectedContent
+                                        } as Block)
+                                    }
+                                }
+                            } else {
+                                // Middle or Last Blocks: Always preserve their type because the selection naturally wraps them!
+                                copiedBlocks.push('content' in sourceBlock
+                                    ? { ...sourceBlock, content: selectedContent } as Block
+                                    : sourceBlock)
+                            }
+                        }
+
+                        if (copiedBlocks.length > 0) {
+                            e.preventDefault()
+                            copyBlocksToClipboard(copiedBlocks)
+                        } else {
+                            clearBlockClipboard()
+                        }
+                    } else {
+                        clearBlockClipboard()
+                    }
+                    return
                 }
 
-                // Bulk Duplicate (Cmd/Ctrl + D)
-                if (e.key === 'd' && (e.metaKey || e.ctrlKey)) {
-                    e.preventDefault()
-                    editor.duplicateBlocks(idsArray)
-                    state.clearSelection()
-                }
-            })
+                // No text selection (cursor only) or multi-selection → block copy by targetIds
+                const targetIds: string[] = hasMultiSelection
+                    ? Array.from(selectedIds)
+                    : activeBlockId ? [activeBlockId] : []
+                if (targetIds.length === 0) return
+                e.preventDefault()
+                copyBlocksToClipboard(allBlocks.filter(b => targetIds.includes(b.id)))
+                if (hasMultiSelection) clearSelection()
+                return
+            }
+
+            // For Duplicate / Delete, we need a valid targetIds
+            const targetIds: string[] = hasMultiSelection
+                ? Array.from(selectedIds)
+                : activeBlockId ? [activeBlockId] : []
+            if (targetIds.length === 0) return
+
+            // ─ Cmd+D: Duplicate ─
+            if (e.key === 'd' && (e.metaKey || e.ctrlKey) && !isTyping) {
+                e.preventDefault()
+                editor.duplicateBlocks(targetIds)
+                clearSelection()
+                return
+            }
+
+            // ─ Backspace / Delete: Delete (only when NOT in a text editing context) ─
+            if ((e.key === 'Backspace' || e.key === 'Delete') && !isTyping) {
+                e.preventDefault()
+                editor.removeBlocks(targetIds)
+                clearSelection()
+                return
+            }
         }
 
         window.addEventListener('keydown', handleGlobalKeyDown)
         return () => window.removeEventListener('keydown', handleGlobalKeyDown)
     }, [editor])
+
 
     return {
         // State
@@ -185,6 +310,8 @@ export function useCanvasLogic() {
         insertBlockAfter,
         addBlock,
         removeBlock,
+        removeBlocks,
+        duplicateBlocks,
         turnIntoBlock,
         reorderBlocks,
         handleOpenSlashMenu,

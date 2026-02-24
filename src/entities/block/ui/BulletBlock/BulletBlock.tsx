@@ -161,9 +161,15 @@ export function BulletBlock({
         }
     }
 
+
     const handlePaste = (e: React.ClipboardEvent) => {
         e.preventDefault()
-        const text = e.clipboardData.getData('text/plain')
+        if (!contentRef.current) return
+        const htmlData = e.clipboardData.getData('text/html')
+        const plainData = e.clipboardData.getData('text/plain')
+        const text = htmlData ? htmlToMarkdown(htmlData) : plainData
+        if (!text) return
+        // Insert at cursor using execCommand for BulletBlock (simpler than TextBlock cursor mapping)
         document.execCommand('insertText', false, text)
     }
 

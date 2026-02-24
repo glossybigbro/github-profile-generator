@@ -194,9 +194,13 @@ export function HeaderBlock({
         }
     }
 
+
     const handlePaste = (e: React.ClipboardEvent) => {
         e.preventDefault()
-        const text = e.clipboardData.getData('text/plain')
+        const htmlData = e.clipboardData.getData('text/html')
+        const plainData = e.clipboardData.getData('text/plain')
+        const text = htmlData ? htmlToMarkdown(htmlData) : plainData
+        if (!text) return
         document.execCommand('insertText', false, text)
     }
 

@@ -18,6 +18,8 @@ export function CanvasEditor() {
         insertBlockAfter,
         addBlock,
         removeBlock,
+        removeBlocks,
+        duplicateBlocks,
         turnIntoBlock,
         reorderBlocks,
         handleOpenSlashMenu,
@@ -49,6 +51,8 @@ export function CanvasEditor() {
                 onInsertBlockAfter={insertBlockAfter}
                 onAddBlock={addBlock}
                 onRemoveBlock={removeBlock}
+                onRemoveBlocks={removeBlocks}
+                onDuplicateBlocks={duplicateBlocks}
                 onTurnIntoBlock={turnIntoBlock}
                 onOpenSlashMenu={handleOpenSlashMenu}
                 onBackgroundClick={handleBackgroundClick}

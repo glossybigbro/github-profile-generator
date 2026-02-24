@@ -24,5 +24,6 @@ export function useCanvasEditor() {
         }
     }, []) // Run only once on mount
 
+    // expose bulk actions explicitly from the store if needed (actually, store already contains it)
     return store
 }

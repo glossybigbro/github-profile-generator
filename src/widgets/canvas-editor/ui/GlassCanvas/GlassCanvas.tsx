@@ -12,6 +12,8 @@ import { WeeklyLanguagePreview } from '@/features/section-stats/ui/WeeklyLanguag
 import { WeeklyProjectsPreview } from '@/features/section-stats/ui/WeeklyProjectsPreview/WeeklyProjectsPreview'
 import { ActivityGraphPreview } from '@/features/section-stats/ui/ActivityGraphPreview/ActivityGraphPreview'
 import { ProductiveTimePreview } from '@/features/section-stats/ui/ProductiveTimePreview/ProductiveTimePreview'
+import { markdownToHtml, htmlToMarkdown } from '@/shared/lib/markdown/simpleConverter'
+import { copyBlocksToClipboard, getBlockClipboard } from '@/entities/block/model/blockClipboard'
 import { SortableBlock } from '@/entities/block/ui/SortableBlock'
 import {
     DndContext,
@@ -30,7 +32,7 @@ import {
     sortableKeyboardCoordinates,
     verticalListSortingStrategy
 } from '@dnd-kit/sortable'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useSelectionStore } from '@/entities/block/model/useSelectionStore'
 import { useBlockStore } from '@/entities/block/model/useBlockStore'
@@ -44,6 +46,8 @@ interface GlassCanvasProps {
     onInsertBlockAfter: (prevBlockId: string, newBlock: Block, shouldFocus?: boolean) => void
     onAddBlock: (block: Block, index?: number, shouldFocus?: boolean) => void
     onRemoveBlock: (blockId: string) => void
+    onRemoveBlocks: (blockIds: string[]) => void
+    onDuplicateBlocks: (blockIds: string[]) => void
     onTurnIntoBlock: (blockId: string, newTypeBlock: Block, maintainContent?: boolean) => void
     onOpenSlashMenu: (rect: DOMRect, blockId: string) => void
     onBackgroundClick: (e: React.MouseEvent) => void
@@ -59,6 +63,8 @@ export function GlassCanvas({
     onInsertBlockAfter,
     onAddBlock,
     onRemoveBlock,
+    onRemoveBlocks,
+    onDuplicateBlocks,
     onTurnIntoBlock,
     onOpenSlashMenu,
     onBackgroundClick,
@@ -220,6 +226,111 @@ export function GlassCanvas({
         }
     }
     // -----------------------------
+
+    // -----------------------------
+    // Block Action Handlers (Single + Bulk)
+    // -----------------------------
+    const handleDeleteBlock = (blockId: string) => {
+        const { selectedIds, clearSelection } = useSelectionStore.getState()
+
+        // BULK: If the clicked block is part of a multi-selection, delete ALL selected
+        if (selectedIds.size > 1 && selectedIds.has(blockId)) {
+            onRemoveBlocks(Array.from(selectedIds))
+            clearSelection()
+            return
+        }
+
+        // SINGLE: default single-block delete
+        onRemoveBlock(blockId)
+        clearSelection()
+    }
+
+    const handleDuplicateBlock = (blockId: string) => {
+        const { selectedIds, clearSelection } = useSelectionStore.getState()
+
+        // BULK: If the clicked block is part of a multi-selection, duplicate ALL selected
+        if (selectedIds.size > 1 && selectedIds.has(blockId)) {
+            onDuplicateBlocks(Array.from(selectedIds))
+            clearSelection()
+            return
+        }
+
+        // SINGLE: clone the block and insert immediately after
+        const block = blocks.find(b => b.id === blockId)
+        if (!block) return
+
+        const clonedBlock = {
+            ...block,
+            id: `block-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            createdAt: Date.now()
+        }
+
+        const index = blocks.findIndex(b => b.id === blockId)
+        if (index !== -1) {
+            onAddBlock(clonedBlock as Block, index + 1, false)
+        }
+    }
+
+    // ─── Copy: save to shared blockClipboard (works for ALL block types incl. widgets) ───
+    const handleCopyBlock = async (block: Block) => {
+        const { selectedIds } = useSelectionStore.getState()
+
+        // Pick blocks to copy (single or multi-selection)
+        const blocksToCopy: Block[] =
+            selectedIds.size > 1 && selectedIds.has(block.id)
+                ? blocks.filter(b => selectedIds.has(b.id))
+                : [block]
+
+        copyBlocksToClipboard(blocksToCopy)
+    }
+
+
+    // ─── Paste: intercept the PASTE event (not keydown) for reliable block-level paste ───
+    // Using the 'paste' event is correct: e.preventDefault() here reliably stops
+    // TextBlock's onPaste handler from running simultaneously.
+    useEffect(() => {
+        const handlePaste = (e: ClipboardEvent) => {
+            const clipboard = getBlockClipboard()
+            // If we have no block clipboard data, let browser/TextBlock handle natively
+            if (clipboard.length === 0) return
+
+            e.preventDefault()
+            e.stopPropagation()
+
+            // Give each block a fresh unique ID
+            const newBlocks: Block[] = clipboard.map((srcBlock: Block, i: number) => ({
+                ...srcBlock,
+                id: `block-${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${i}`,
+                createdAt: Date.now()
+            }))
+
+            // addBlocks already handles:
+            // - If active block is EMPTY text → removes it and inserts blocks FROM that position
+            // - If active block has content → inserts blocks AFTER it
+            useBlockStore.getState().addBlocks(newBlocks)
+
+            // Explicitly move the DOM cursor to the end of the last pasted block.
+            // MUST use setTimeout (not requestAnimationFrame) so it runs strictly AFTER
+            // React mounts the new block and its internal useEffect calls .focus().
+            setTimeout(() => {
+                const lastBlock = newBlocks[newBlocks.length - 1]
+                const el = document.getElementById(`block-${lastBlock.id}`)
+                if (el) {
+                    el.focus()
+                    const range = document.createRange()
+                    range.selectNodeContents(el)
+                    range.collapse(false) // collapse to END
+                    const sel = window.getSelection()
+                    sel?.removeAllRanges()
+                    sel?.addRange(range)
+                }
+            }, 10)
+        }
+
+        window.addEventListener('paste', handlePaste, { capture: true })
+        return () => window.removeEventListener('paste', handlePaste, { capture: true })
+    }, [])
+
 
     const { handleKeyDown } = useBlockEvents({
         blocks,
@@ -568,15 +679,9 @@ export function GlassCanvas({
                                     <SortableBlock
                                         blockId={block.id}
                                         blockType={block.type}
-                                        onDelete={() => onRemoveBlock(block.id)}
-                                        onDuplicate={() => {
-                                            // TODO: Implement duplication
-                                            console.log('Duplicate:', block.id)
-                                        }}
-                                        onCopy={() => {
-                                            // TODO: Implement copy
-                                            console.log('Copy:', block.id)
-                                        }}
+                                        onDelete={() => handleDeleteBlock(block.id)}
+                                        onDuplicate={() => handleDuplicateBlock(block.id)}
+                                        onCopy={() => handleCopyBlock(block)}
                                         isDraggingAny={activeDragId !== null}
                                         isSelected={useSelectionStore.getState().selectedIds.has(block.id)}
                                         isDropTarget={

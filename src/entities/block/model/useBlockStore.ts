@@ -48,8 +48,14 @@ export const useBlockStore = create<BlockStore>((set, get) => {
 
         const lastBlock = blocks[blocks.length - 1]
 
-        // If last block is a widget and there's no text block after it, add one
-        if (lastBlock.type === 'widget') {
+        // The canvas must ALWAYS end with an empty text block.
+        // This ensures the user can always click/type at the bottom.
+        const isLastBlockEmpty =
+            lastBlock.type === 'text' &&
+            'content' in lastBlock &&
+            !(lastBlock as any).content?.trim()
+
+        if (!isLastBlockEmpty) {
             return [
                 ...blocks,
                 {
@@ -315,15 +321,17 @@ export const useBlockStore = create<BlockStore>((set, get) => {
 
             currentBlocks.splice(effectivePosition, 0, ...newBlocks)
 
-            const newActiveBlockId = shouldFocus ? newBlocks[0].id : state.activeBlockId
+            // Focus the LAST inserted block to intuitively continue writing after paste
+            const newActiveBlockId = shouldFocus && newBlocks.length > 0
+                ? newBlocks[newBlocks.length - 1].id
+                : state.activeBlockId
+
             if (shouldFocus && newBlocks.length > 0) {
-                syncSelectionAnchor(newBlocks[0].id)
+                syncSelectionAnchor(newBlocks[newBlocks.length - 1].id)
             }
 
             return {
                 blocks: ensureEmptyLineAfterWidget(currentBlocks),
-                // Focus the first inserted block? or the last? usually the last one makes sense for writing flow, 
-                // but for preview we might want to see the top. Let's focus the first one for now.
                 activeBlockId: newActiveBlockId,
                 cursorPosition: effectivePosition + newBlocks.length
             }
