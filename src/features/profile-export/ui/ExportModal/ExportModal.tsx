@@ -41,7 +41,8 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
         const reader = new FileReader()
         reader.onload = (event) => {
             try {
-                const json = JSON.parse(event.target?.result as string)
+                const jsonText = (event.target?.result as string).replace(/^\s*\/\/.*$/gm, '')
+                const json = JSON.parse(jsonText)
                 const success = restoreConfig(json)
                 if (success) {
                     alert("Configuration restored successfully!")
