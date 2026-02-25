@@ -8,7 +8,7 @@ import { generateMarkdownFromBlocks } from './blockGenerator'
  * @description
  * Extends GeneratorConfig with sections array for markdown generation.
  */
-type ExtendedGeneratorConfig = GeneratorConfig & { sections: MarkdownSection[] }
+type ExtendedGeneratorConfig = GeneratorConfig
 
 /**
  * Generate Complete Markdown Profile
@@ -28,7 +28,7 @@ export function generateMarkdown(config: ExtendedGeneratorConfig): string {
     }
 
     // 2. Legacy Section-based Generation (Fallback)
-    const { sections } = config
+    const sections = config.sections || []
 
     // Filter only enabled sections (assumes sections are already sorted)
     const enabledSections = sections.filter((s: MarkdownSection) => s.enabled)

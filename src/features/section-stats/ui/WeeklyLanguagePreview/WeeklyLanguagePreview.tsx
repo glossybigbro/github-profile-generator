@@ -84,6 +84,14 @@ export function WeeklyLanguagePreview({ block }: WeeklyLanguagePreviewProps) {
     const circleEmoji = theme.emoji.circle
 
     const generateDataChart = () => {
+        if (useRealData && filteredLanguages.length === 0) {
+            return '>_ Productive Time\n\n' +
+                '   ╭────────────────────────────╮\n' +
+                '   │   NO ACTIVITY DETECTED     │\n' +
+                '   │   Waiting for daily code.  │\n' +
+                '   ╰────────────────────────────╯\n'
+        }
+
         const visualizationStyle = weeklyLanguages.style
         let chart = ''
 
@@ -114,7 +122,20 @@ export function WeeklyLanguagePreview({ block }: WeeklyLanguagePreviewProps) {
         if (titleRef.current) {
             const newTitle = titleRef.current.innerText
             setTitle(newTitle)
-            // TODO: Update block config in store
+            if (block.id) {
+                const { useBlockStore } = require('@/entities/block/model/useBlockStore')
+                const blocks = useBlockStore.getState().blocks
+                const currentBlock = blocks.find((b: any) => b.id === block.id)
+                if (currentBlock && currentBlock.type === 'widget') {
+                    const currentConfig = (currentBlock as any).config || {}
+                    useBlockStore.getState().updateBlock(block.id, {
+                        config: {
+                            ...currentConfig,
+                            title: newTitle
+                        }
+                    })
+                }
+            }
         }
     }
 

@@ -14,6 +14,7 @@ export function WeeklyLanguagesSettings({ blockId }: { blockId?: string | null }
     const username = useProfileStore(state => state.username)
     const accentColor = useProfileStore(state => state.accentColor)
     const [isAnalyzing, setIsAnalyzing] = useState(false)
+    const [analyzedCount, setAnalyzedCount] = useState<number | null>(null)
 
     if (!weeklyLanguages) return null
 
@@ -55,7 +56,7 @@ export function WeeklyLanguagesSettings({ blockId }: { blockId?: string | null }
                 }
             }
 
-            alert(`Successfully analyzed ${languageStats.length} languages!`)
+            setAnalyzedCount(languageStats.length)
         } catch (error: any) {
             console.error('Failed to analyze languages:', error)
             alert(error.message || 'Failed to fetch GitHub data. Please try again.')
@@ -110,12 +111,21 @@ export function WeeklyLanguagesSettings({ blockId }: { blockId?: string | null }
                     )}
                 </button>
                 <p className={styles.dataNote}>
-                    Analyzes your recent repositories to calculate real language statistics.
+                    Analyzes your recent <strong>public</strong> repositories to calculate real language statistics.
                     <br />
                     <span style={{ fontSize: '11px', color: '#ffcd56' }}>
                         ⚠️ Private repositories are not accessible via this API.
                     </span>
                 </p>
+                {analyzedCount !== null && (
+                    <div className={styles.analysisResult}>
+                        {analyzedCount === 0 ? (
+                            <span style={{ color: '#ffcd56' }}>No public repositories found with language data. 🤔</span>
+                        ) : (
+                            <span style={{ color: '#8b5cf6' }}>Language stats analyzed! 📊 ({analyzedCount} languages)</span>
+                        )}
+                    </div>
+                )}
             </div>
 
             {/* Add to Canvas Button */}

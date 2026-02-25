@@ -134,6 +134,9 @@ export interface ProfileState {
     }>) => void
 
 
+    exportCronFrequency: string
+    setExportCronFrequency: (cron: string) => void
+
     // State
     lastValidUsername: string | null
     setLastValidUsername: (username: string | null) => void
@@ -256,6 +259,9 @@ export const useProfileStore = create<ProfileState>((set) => ({
     setWeeklyProjects: (config) => set((state) => ({
         weeklyProjects: { ...state.weeklyProjects, ...config }
     })),
+
+    exportCronFrequency: '0 0 * * *', // Default Daily
+    setExportCronFrequency: (cron) => set({ exportCronFrequency: cron }),
 
     lastValidUsername: null,
 

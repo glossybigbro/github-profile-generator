@@ -10,6 +10,7 @@ export function WeeklyProjectsSettings({ blockId }: { blockId?: string | null })
     const { weeklyProjects, setWeeklyProjects } = useWeeklyProjects(blockId || undefined)
     const username = useProfileStore(state => state.username)
     const [isAnalyzing, setIsAnalyzing] = useState(false)
+    const [analyzedCount, setAnalyzedCount] = useState<number | null>(null)
 
     // Rule 3: Defensive Coding
     if (!weeklyProjects) return null
@@ -46,7 +47,7 @@ export function WeeklyProjectsSettings({ blockId }: { blockId?: string | null })
                 }
             }
 
-            alert(`Successfully analyzed ${projectStats.length} projects!`)
+            setAnalyzedCount(projectStats.length)
         } catch (error: any) {
             console.error('Failed to analyze projects:', error)
             alert(error.message || 'Failed to fetch GitHub data. Please try again.')
@@ -90,6 +91,15 @@ export function WeeklyProjectsSettings({ blockId }: { blockId?: string | null })
                         ⚠️ Private repositories are not accessible via this API.
                     </span>
                 </p>
+                {analyzedCount !== null && (
+                    <div className={styles.analysisResult}>
+                        {analyzedCount === 0 ? (
+                            <span style={{ color: '#ffcd56' }}>No recent public project activity found. 🤔</span>
+                        ) : (
+                            <span style={{ color: '#8b5cf6' }}>Project stats analyzed! 💻 ({analyzedCount} projects)</span>
+                        )}
+                    </div>
+                )}
             </div>
 
             {/* Add to Canvas Button */}

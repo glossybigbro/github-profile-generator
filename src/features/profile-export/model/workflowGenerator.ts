@@ -3,12 +3,11 @@
  * 
  * @description
  * Generates a YAML file for GitHub Actions that automatically updates
- * the user's profile README with the latest data.
+ * the user's profile README with the latest data using the downloaded scripts.
  */
 
 export interface WorkflowConfig {
   username: string
-  apiEndpoint: string
   updateInterval: string // cron expression
 }
 
@@ -19,16 +18,16 @@ export interface WorkflowConfig {
  * @returns YAML content as string
  */
 export function generateWorkflowYAML(config: WorkflowConfig): string {
-  const { username, apiEndpoint, updateInterval } = config
+  const { username, updateInterval } = config
 
   return `name: Update Profile README
 
 on:
   schedule:
-    # Runs every 6 hours
+    # Action will run on this schedule
     - cron: '${updateInterval}'
   
-  # Allow manual trigger
+  # Allow manual trigger from GitHub UI
   workflow_dispatch:
 
 jobs:
@@ -39,16 +38,26 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       
-      - name: Fetch latest README
-        run: |
-          curl -s "${apiEndpoint}?username=${username}" > README.md
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install Dependencies
+        run: npm install
+        
+      - name: Run Update Script
+        env:
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
+          # WAKATIME_API_KEY: \${{ secrets.WAKATIME_API_KEY }} # Uncomment if using WakaTime
+        run: npm run update-profile
       
       - name: Commit and push if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add README.md
-          git diff --quiet && git diff --staged --quiet || (git commit -m "🤖 Auto-update README" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "🤖 Auto-update Profile README" && git push)
 `
 }
 
@@ -56,23 +65,22 @@ jobs:
  * Get default cron expression for 6-hour updates
  */
 export function getDefaultCronExpression(): string {
-  return '0 */6 * * *' // Every 6 hours at minute 0
+  return '0 0 * * *' // Default Daily
 }
 
 /**
  * Generate complete workflow file content
  * 
  * @param username - GitHub username
+ * @param cronFrequency - Cron frequency for schedule
  * @returns YAML content for .github/workflows/update-profile.yml
  */
-export function generateProfileUpdateWorkflow(username: string): string {
+export function generateProfileUpdateWorkflow(username: string, cronFrequency: string = '0 0 * * *'): string {
   const config: WorkflowConfig = {
     username,
-    apiEndpoint: process.env.NEXT_PUBLIC_SITE_URL
-      ? `${process.env.NEXT_PUBLIC_SITE_URL}/api/generate`
-      : 'https://YOUR-DEPLOYED-APP.vercel.app/api/generate',
-    updateInterval: getDefaultCronExpression()
+    updateInterval: cronFrequency
   }
 
   return generateWorkflowYAML(config)
 }
+

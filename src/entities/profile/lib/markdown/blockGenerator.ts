@@ -46,16 +46,19 @@ export function generateMarkdownFromBlocks(blocks: Block[], config: GeneratorCon
                 const generator = getGenerator(w.widgetType)
 
                 if (generator) {
-                    // Create a mock section object that the generator expects
-                    // Most generators only use config, but some might check section.id
+                    // Create a mock section object that the generator expects.
+                    // Pass the block.id so the strategy can find the specific block's local config.
                     const mockSection = {
-                        id: w.widgetType,
+                        id: w.id,
                         name: w.widgetType,
                         type: 'section', // generic
                         enabled: true
                     }
                     // Generate using the existing strategy
-                    content = generator.generate(config, mockSection as any)
+                    const widgetContent = generator.generate(config, mockSection as any).trimEnd()
+
+                    // Add HTML markers for GitHub Actions script to locate and update the block
+                    content = `<!-- glossy-${w.widgetType}-${w.id}-start -->\n${widgetContent}\n<!-- glossy-${w.widgetType}-${w.id}-end -->`
                 } else {
                     content = `<!-- Widget: ${w.widgetType} (No generator found) -->`
                 }

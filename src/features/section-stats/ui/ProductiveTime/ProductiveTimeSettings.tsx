@@ -62,7 +62,14 @@ export function ProductiveTimeSettings({ blockId }: { blockId?: string | null })
                 </p>
                 {productiveTime.isAnalyzed && (
                     <div className={styles.analysisResult}>
-                        <span style={{ color: '#8b5cf6' }}>{getHabitLabel(productiveTime.stats)} detected! 🦉</span>
+                        {productiveTime.stats.commits.morning +
+                            productiveTime.stats.commits.daytime +
+                            productiveTime.stats.commits.evening +
+                            productiveTime.stats.commits.night === 0 ? (
+                            <span style={{ color: '#ffcd56' }}>No recent commands or commits found. 🤔</span>
+                        ) : (
+                            <span style={{ color: '#8b5cf6' }}>{getHabitLabel(productiveTime.stats)} detected! 🦉</span>
+                        )}
                     </div>
                 )}
             </div>

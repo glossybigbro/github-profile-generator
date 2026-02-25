@@ -103,8 +103,8 @@ export interface GeneratorConfig {
     }
     timezone?: string
 
-    // Sections
-    sections: MarkdownSection[]
+    // Sections (Legacy Catalog, Optional)
+    sections?: MarkdownSection[]
 
     // Block configurations (for widget-specific settings)
     blocks?: any[]

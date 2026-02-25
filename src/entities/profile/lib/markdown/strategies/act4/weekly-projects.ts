@@ -27,7 +27,8 @@ export class GitHubProjectsGenerator {
         // For now, let's use the first block of type 'weekly-projects' from config.blocks 
         // to get the "Real Data" if available.
 
-        const projectBlock = blocks.find((b: any) => b.type === 'widget' && (b.widgetType === 'weekly-projects' || b.id === section.id))
+        const projectBlock = blocks.find((b: any) => b.type === 'widget' && b.id === section.id)
+            || blocks.find((b: any) => b.type === 'widget' && b.widgetType === 'weekly-projects')
         const blockConfig = projectBlock ? (projectBlock as any).config : {}
 
         const useRealData = blockConfig.useRealData || false
@@ -35,19 +36,26 @@ export class GitHubProjectsGenerator {
         const weeklyProjectsConfig = blockConfig.weeklyProjects || config.weeklyProjects || {}
 
         const limit = weeklyProjectsConfig.count || defaultLimit
-        const title = blockConfig.title || '🐱💻 Weekly Projects'
+        const periodDays = weeklyProjectsConfig.periodDays || 7
+        const periodStr = periodDays === 7 ? '(Last Week)' : periodDays === 14 ? '(Last 2 Weeks)' : `(Last ${periodDays} Days)`
+        const title = blockConfig.title || `🐱💻 Weekly Projects ${periodStr}`
 
         let markdown = '```text\n'
         markdown += `${title}\n\n`
 
-        const projects = useRealData && realData.length > 0
-            ? realData
-            : [
+        let projects: Array<any>
+        if (!useRealData) {
+            projects = [
                 { name: 'developer-journey', commits: 24, percent: 45 },
                 { name: 'glossy-ui', commits: 12, percent: 25 },
                 { name: 'algorithm-study', commits: 5, percent: 15 },
                 { name: 'blog-posts', commits: 2, percent: 5 }
             ]
+        } else if (realData && realData.length > 0) {
+            projects = realData
+        } else {
+            projects = []
+        }
 
         // Apply sort and limit
         let sortedProjects = [...projects]
@@ -59,14 +67,24 @@ export class GitHubProjectsGenerator {
 
         const finalProjects = sortedProjects.slice(0, limit)
 
-        finalProjects.forEach((proj: any) => {
-            const bar = generateProgressBar(proj.percent, 25)
-            const namePad = proj.name.padEnd(20, ' ')
-            const statPad = `${proj.commits} commits`.padEnd(15, ' ')
-            const percentPad = `${proj.percent} %`.padStart(7, ' ')
+        if (finalProjects.length === 0) {
+            markdown += '     .-.\n' +
+                '   (o o) boo!\n' +
+                '   | O \\\n' +
+                '    \\   \\\n' +
+                '     `~~~\'\n' +
+                '  Invisible on the radar! 👻\n' +
+                '  (Or maybe just working in private repos...)\n'
+        } else {
+            finalProjects.forEach((proj: any) => {
+                const bar = generateProgressBar(proj.percent, 25)
+                const namePad = proj.name.padEnd(20, ' ')
+                const statPad = `${proj.commits} commits`.padEnd(15, ' ')
+                const percentPad = `${proj.percent} %`.padStart(7, ' ')
 
-            markdown += `${namePad} ${statPad} ${bar} ${percentPad}\n`
-        })
+                markdown += `${namePad} ${statPad} ${bar} ${percentPad}\n`
+            })
+        }
         markdown += '```'
 
         return markdown

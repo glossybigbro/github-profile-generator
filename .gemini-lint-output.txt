@@ -1,0 +1,504 @@
+
+> developer-journey@0.1.0 lint
+> eslint
+
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/postcss.config.mjs
+  1:1  warning  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/entities/block/lib/blockBehaviors.ts
+   1:10  warning  'Block' is defined but never used         @typescript-eslint/no-unused-vars
+  10:33  warning  'block' is defined but never used         @typescript-eslint/no-unused-vars
+  45:37  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/entities/block/model/blockClipboard.ts
+  10:43  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  10:74  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/entities/block/model/blockUtils.ts
+  41:64  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  84:39  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/entities/block/model/useBlockStore.ts
+   63:23   error    Unexpected any. Specify a different type                     @typescript-eslint/no-explicit-any
+   63:49   error    Unexpected any. Specify a different type                     @typescript-eslint/no-explicit-any
+   64:38   error    Unexpected any. Specify a different type                     @typescript-eslint/no-explicit-any
+   64:76   error    Unexpected any. Specify a different type                     @typescript-eslint/no-explicit-any
+   72:15   warning  'get' is defined but never used                              @typescript-eslint/no-unused-vars
+   84:36   error    Unexpected any. Specify a different type                     @typescript-eslint/no-explicit-any
+  125:25   error    'newBlocks' is never reassigned. Use 'const' instead         prefer-const
+  127:25   error    'newActiveBlockId' is never reassigned. Use 'const' instead  prefer-const
+  183:62   error    Unexpected any. Specify a different type                     @typescript-eslint/no-explicit-any
+  187:67   error    Unexpected any. Specify a different type                     @typescript-eslint/no-explicit-any
+  301:40   error    Unexpected any. Specify a different type                     @typescript-eslint/no-explicit-any
+  302:44   error    Unexpected any. Specify a different type                     @typescript-eslint/no-explicit-any
+  356:105  error    Unexpected any. Specify a different type                     @typescript-eslint/no-explicit-any
+  440:27   warning  'blocksWithoutOld' is assigned a value but never used        @typescript-eslint/no-unused-vars
+  456:27   warning  'preBlocks' is assigned a value but never used               @typescript-eslint/no-unused-vars
+  479:48   warning  '_' is assigned a value but never used                       @typescript-eslint/no-unused-vars
+  499:40   error    Unexpected any. Specify a different type                     @typescript-eslint/no-explicit-any
+  503:38   error    Unexpected any. Specify a different type                     @typescript-eslint/no-explicit-any
+  505:34   error    Unexpected any. Specify a different type                     @typescript-eslint/no-explicit-any
+  508:50   error    Unexpected any. Specify a different type                     @typescript-eslint/no-explicit-any
+  509:83   error    Unexpected any. Specify a different type                     @typescript-eslint/no-explicit-any
+  511:73   error    Unexpected any. Specify a different type                     @typescript-eslint/no-explicit-any
+  512:79   error    Unexpected any. Specify a different type                     @typescript-eslint/no-explicit-any
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/entities/block/model/useSelectionStore.ts
+  22:63  warning  'get' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/entities/block/ui/BlockHandle/BlockHandle.tsx
+  13:23  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  17:5   warning  'blockId' is defined but never used       @typescript-eslint/no-unused-vars
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/entities/block/ui/BulletBlock/BulletBlock.tsx
+  110:8  warning  React Hook useEffect has a missing dependency: 'block.content'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/entities/block/ui/EditableBlock/EditableBlock.tsx
+  16:5  warning  'onUpdate' is defined but never used  @typescript-eslint/no-unused-vars
+  18:5  warning  'onBlur' is defined but never used    @typescript-eslint/no-unused-vars
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/entities/block/ui/HeaderBlock/HeaderBlock.tsx
+  116:8   warning  React Hook useEffect has a missing dependency: 'block.content'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  122:17  error    'html' is never reassigned. Use 'const' instead                                                                   prefer-const
+  167:11  warning  'handleClick' is assigned a value but never used                                                                  @typescript-eslint/no-unused-vars
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/entities/block/ui/TextBlock/TextBlock.tsx
+   12:10  warning  'copyBlocksToClipboard' is defined but never used                                                                 @typescript-eslint/no-unused-vars
+   23:55  error    Unexpected any. Specify a different type                                                                          @typescript-eslint/no-explicit-any
+  132:8   warning  React Hook useEffect has a missing dependency: 'block.content'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  152:22  error    Unexpected any. Specify a different type                                                                          @typescript-eslint/no-explicit-any
+  167:22  error    Unexpected any. Specify a different type                                                                          @typescript-eslint/no-explicit-any
+  176:22  error    Unexpected any. Specify a different type                                                                          @typescript-eslint/no-explicit-any
+  181:17  error    'html' is never reassigned. Use 'const' instead                                                                   prefer-const
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/entities/profile/api/client.ts
+   2:10   warning  'GitHubError' is defined but never used   @typescript-eslint/no-unused-vars
+  31:108  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/entities/profile/api/language-api.ts
+  22:72  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/entities/profile/api/project-api.ts
+  14:31  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  23:11  warning  'CreateEvent' is defined but never used   @typescript-eslint/no-unused-vars
+  31:66  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  40:21  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  58:47  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/entities/profile/config/defaults.ts
+  2:10  warning  'ProductiveTimeStyleId' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/entities/profile/config/markdownConfig.tsx
+  14:67  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  18:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  21:65  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  22:17  warning  'node' is assigned a value but never used                                                                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+  25:65  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  26:17  warning  'node' is assigned a value but never used                                                                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+  29:65  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  30:17  warning  'node' is assigned a value but never used                                                                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+  33:65  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  34:17  warning  'node' is assigned a value but never used                                                                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/entities/profile/lib/mappers.ts
+   2:35  warning  'MarkdownSection' is defined but never used              @typescript-eslint/no-unused-vars
+   3:10  warning  'Section' is defined but never used                      @typescript-eslint/no-unused-vars
+  17:11  warning  'normalizedSections' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/entities/profile/lib/markdown/ascii-art.ts
+   25:7  warning  'pad' is assigned a value but never used          @typescript-eslint/no-unused-vars
+  172:7  warning  'getPeakTime' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/entities/profile/lib/markdown/blockGenerator.ts
+  58:85  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/entities/profile/lib/markdown/strategies/act1/activity-graph.ts
+  21:39  warning  'section' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/entities/profile/lib/markdown/strategies/act1/bio.ts
+  17:39  warning  'section' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/entities/profile/lib/markdown/strategies/act1/productive-time.ts
+  29:43  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  32:59  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  33:29  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/entities/profile/lib/markdown/strategies/act3/timezone.ts
+  4:54  warning  'section' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/entities/profile/lib/markdown/strategies/act4/weekly-languages.ts
+  14:55  error  Unexpected any. Specify a different type                    @typescript-eslint/no-explicit-any
+  15:33  error  Unexpected any. Specify a different type                    @typescript-eslint/no-explicit-any
+  18:77  error  Unexpected any. Specify a different type                    @typescript-eslint/no-explicit-any
+  48:13  error  'sortedLanguages' is never reassigned. Use 'const' instead  prefer-const
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/entities/profile/lib/markdown/strategies/act4/weekly-projects.ts
+  30:46  error  Unexpected any. Specify a different type                   @typescript-eslint/no-explicit-any
+  31:32  error  Unexpected any. Specify a different type                   @typescript-eslint/no-explicit-any
+  32:61  error  Unexpected any. Specify a different type                   @typescript-eslint/no-explicit-any
+  44:29  error  Unexpected any. Specify a different type                   @typescript-eslint/no-explicit-any
+  59:13  error  'sortedProjects' is never reassigned. Use 'const' instead  prefer-const
+  61:37  error  Unexpected any. Specify a different type                   @typescript-eslint/no-explicit-any
+  61:45  error  Unexpected any. Specify a different type                   @typescript-eslint/no-explicit-any
+  63:37  error  Unexpected any. Specify a different type                   @typescript-eslint/no-explicit-any
+  63:45  error  Unexpected any. Specify a different type                   @typescript-eslint/no-explicit-any
+  77:42  error  Unexpected any. Specify a different type                   @typescript-eslint/no-explicit-any
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/entities/profile/lib/markdown/strategies/common/default.ts
+  22:14  warning  'config' is defined but never used   @typescript-eslint/no-unused-vars
+  22:39  warning  'section' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/entities/profile/lib/markdown/types.ts
+  110:14  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/entities/profile/ui/MarkdownViewer/MarkdownViewer.tsx
+  17:13  warning  'activityGraphTheme' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  17:33  warning  'activityGraphAreaFill' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  17:56  warning  'bio' is assigned a value but never used                    @typescript-eslint/no-unused-vars
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/features/block-interaction/model/editingHandlers.ts
+    3:10  warning  'Block' is defined but never used                                                                           @typescript-eslint/no-unused-vars
+   94:23  error    Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong  @typescript-eslint/no-non-null-asserted-optional-chain
+  150:7   warning  'getBlockDOMContent' is assigned a value but never used                                                     @typescript-eslint/no-unused-vars
+  175:64  error    Unexpected any. Specify a different type                                                                    @typescript-eslint/no-explicit-any
+  338:22  warning  'err' is defined but never used                                                                             @typescript-eslint/no-unused-vars
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/features/block-interaction/model/navigationHandlers.ts
+   2:10  warning  'Block' is defined but never used                                                                                    @typescript-eslint/no-unused-vars
+  36:17  error    Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/features/onboarding/model/useOnboarding.ts
+  15:23  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/features/onboarding/model/useOnboarding.ts:15:23
+  13 |     // Clear local error when API error appears or username changes
+  14 |     useEffect(() => {
+> 15 |         if (apiError) setLocalError(null)
+     |                       ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  16 |     }, [apiError])
+  17 |
+  18 |     const handleStart = async () => {  react-hooks/set-state-in-effect
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/features/profile-export/model/useProfileExport.ts
+   95:23  error    Unexpected any. Specify a different type                                                                       @typescript-eslint/no-explicit-any
+   99:8   warning  React Hook useCallback has a missing dependency: 'markdown'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  102:56  error    Unexpected any. Specify a different type                                                                       @typescript-eslint/no-explicit-any
+  130:25  error    Unexpected any. Specify a different type                                                                       @typescript-eslint/no-explicit-any
+  138:67  error    Unexpected any. Specify a different type                                                                       @typescript-eslint/no-explicit-any
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/features/profile-export/model/workflowGenerator.ts
+  21:11  warning  'username' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/features/profile-export/ui/ExportModal/ExportModal.tsx
+  24:9   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/features/profile-export/ui/ExportModal/ExportModal.tsx:24:9
+  22 |
+  23 |     useEffect(() => {
+> 24 |         setMounted(true)
+     |         ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  25 |         return () => setMounted(false)
+  26 |     }, [])
+  27 |  react-hooks/set-state-in-effect
+  50:22  warning  'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/features/release-notification/model/useReleaseNotification.ts
+  38:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/features/release-notification/model/useReleaseNotification.ts:38:9
+  36 |
+  37 |     useEffect(() => {
+> 38 |         setMounted(true)
+     |         ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  39 |         return () => setMounted(false)
+  40 |     }, [])
+  41 |  react-hooks/set-state-in-effect
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/features/section-stats/model/useActivityGraphSettings.ts
+  17:38  error  Unexpected any. Specify a different type                                                                                 @typescript-eslint/no-explicit-any
+  24:43  error  Unexpected any. Specify a different type                                                                                 @typescript-eslint/no-explicit-any
+  26:45  error  Unexpected any. Specify a different type                                                                                 @typescript-eslint/no-explicit-any
+  34:56  error  The `Function` type accepts any function-like value.
+Prefer explicitly defining any function parameters and return type  @typescript-eslint/no-unsafe-function-type
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/features/section-stats/model/useProductiveTimeSettings.ts
+  19:74  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  20:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  26:45  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  41:44  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  70:49  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/features/section-stats/model/useWeeklyLanguages.ts
+  15:70  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/features/section-stats/model/useWeeklyProjects.ts
+  14:70  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/features/section-stats/ui/ActivityGraphPreview/ActivityGraphPreview.tsx
+  15:31  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  29:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/features/section-stats/ui/ProductiveTime/ProductiveTimeSettings.tsx
+  52:49  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/features/section-stats/ui/ProductiveTimePreview/ProductiveTimePreview.tsx
+  23:38  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/features/section-stats/ui/WeeklyLanguagePreview/WeeklyLanguagePreview.tsx
+   18:35  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-explicit-any
+   40:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/features/section-stats/ui/WeeklyLanguagePreview/WeeklyLanguagePreview.tsx:40:13
+  38 |         if (!blockConfig.title) {
+  39 |             const periodLabel = weeklyLanguages.periodDays === 7 ? 'Week' : `${weeklyLanguages.periodDays} Days`
+> 40 |             setTitle(`💬 Weekly Languages (Last ${periodLabel})`)
+     |             ^^^^^^^^ Avoid calling setState() directly within an effect
+  41 |         }
+  42 |     }, [weeklyLanguages.periodDays, blockConfig.title])
+  43 |  react-hooks/set-state-in-effect
+   47:42  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-explicit-any
+   69:9   error  'sortedLanguages' is never reassigned. Use 'const' instead                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          prefer-const
+   82:41  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-explicit-any
+  156:41  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     react/no-unescaped-entities
+  156:61  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     react/no-unescaped-entities
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/features/section-stats/ui/WeeklyProjectsPreview/WeeklyProjectsPreview.tsx
+   18:35  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          @typescript-eslint/no-explicit-any
+   40:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/features/section-stats/ui/WeeklyProjectsPreview/WeeklyProjectsPreview.tsx:40:13
+  38 |         if (!blockConfig.title) {
+  39 |             const periodLabel = weeklyProjects.periodDays === 7 ? 'Week' : `${weeklyProjects.periodDays} Days`
+> 40 |             setTitle(`🐱💻 Weekly Projects (Last ${periodLabel})`)
+     |             ^^^^^^^^ Avoid calling setState() directly within an effect
+  41 |         }
+  42 |     }, [weeklyProjects.periodDays, blockConfig.title])
+  43 |  react-hooks/set-state-in-effect
+   47:42  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          @typescript-eslint/no-explicit-any
+   69:9   error  'sortedProjects' is never reassigned. Use 'const' instead                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         prefer-const
+   80:41  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          @typescript-eslint/no-explicit-any
+  156:41  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   react/no-unescaped-entities
+  156:61  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   react/no-unescaped-entities
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/features/section-stats/ui/WeeklyStats/WeeklyLanguagesSettings/WeeklyLanguagesSettings.tsx
+   48:60  error  Unexpected any. Specify a different type                         @typescript-eslint/no-explicit-any
+   60:25  error  Unexpected any. Specify a different type                         @typescript-eslint/no-explicit-any
+  105:49  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/features/section-stats/ui/WeeklyStats/WeeklyProjectsSettings/WeeklyProjectsSettings.tsx
+  39:60  error  Unexpected any. Specify a different type                         @typescript-eslint/no-explicit-any
+  51:25  error  Unexpected any. Specify a different type                         @typescript-eslint/no-explicit-any
+  79:49  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/features/section-stats/ui/WeeklyStats/WeeklySettingsBase/WeeklySettingsBase.tsx
+   5:68   warning  'StyleOption' is defined but never used   @typescript-eslint/no-unused-vars
+   5:81   warning  'PeriodOption' is defined but never used  @typescript-eslint/no-unused-vars
+  30:105  warning  'onAnalyze' is defined but never used     @typescript-eslint/no-unused-vars
+  30:116  warning  'isAnalyzing' is defined but never used   @typescript-eslint/no-unused-vars
+  38:40   error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/features/slash-command/model/useSlashMenu.ts
+  13:69  warning  'onItemHover' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+  26:9   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/features/slash-command/model/useSlashMenu.ts:26:9
+  24 |     // Mount/Unmount & Global Events
+  25 |     useEffect(() => {
+> 26 |         setMounted(true)
+     |         ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  27 |         document.body.style.overflow = 'hidden'
+  28 |
+  29 |         const handleMouseMove = () => setIsKeyboardNav(false)  react-hooks/set-state-in-effect
+  68:9   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/features/slash-command/model/useSlashMenu.ts:68:9
+  66 |         const left = triggerRect.left - MENU_LEFT_OFFSET
+  67 |
+> 68 |         setStyle({
+     |         ^^^^^^^^ Avoid calling setState() directly within an effect
+  69 |             top,
+  70 |             left,
+  71 |             opacity: 1                                                                react-hooks/set-state-in-effect
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/features/slash-command/model/useSlashMenuLogic.ts
+  60:49  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/shared/lib/markdown/simpleConverter.ts
+   84:9   error    'markdown' is never reassigned. Use 'const' instead  prefer-const
+   97:9   error    'clean' is never reassigned. Use 'const' instead     prefer-const
+  271:14  warning  'e' is defined but never used                        @typescript-eslint/no-unused-vars
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/shared/ui/canvas-radar/CanvasRadar.tsx
+  12:10  warning  'hexToRgba' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @typescript-eslint/no-unused-vars
+  30:40  error    Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/shared/ui/canvas-radar/CanvasRadar.tsx:30:40
+  28 |         distance: RADAR_CONFIG.signalInitialDistance
+  29 |     })
+> 30 |     const lastSignalUpdateRef = useRef(Date.now())
+     |                                        ^^^^^^^^^^ Cannot call impure function
+  31 |
+  32 |     useEffect(() => {
+  33 |         const canvas = canvasRef.current  react-hooks/purity
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/shared/ui/space-background/lib/useSpaceAnimation.ts
+   26:52  warning  'color' is defined but never used                  @typescript-eslint/no-unused-vars
+  263:21  warning  'INTERVAL_MIN' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  263:35  warning  'INTERVAL_MAX' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/widgets/canvas-editor/model/useCanvasEditor.ts
+  18:8  warning  React Hook useEffect has a missing dependency: 'store'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  25:8  warning  React Hook useEffect has a missing dependency: 'store'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/widgets/canvas-editor/model/useCanvasLogic.ts
+   8:33  warning  'getBlockClipboard' is defined but never used  @typescript-eslint/no-unused-vars
+  81:41  error    Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/widgets/canvas-editor/ui/GlassCanvas/GlassCanvas.tsx
+   15:10   warning  'markdownToHtml' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          @typescript-eslint/no-unused-vars
+   15:26   warning  'htmlToMarkdown' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          @typescript-eslint/no-unused-vars
+   33:5    warning  'verticalListSortingStrategy' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             @typescript-eslint/no-unused-vars
+   90:15   warning  'isInteractive' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+  140:45   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-explicit-any
+  141:50   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-explicit-any
+  195:15   warning  'selLeft' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+  196:15   warning  'selRight' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+  264:26   error    Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/widgets/canvas-editor/ui/GlassCanvas/GlassCanvas.tsx:264:26
+  262 |         const clonedBlock = {
+  263 |             ...block,
+> 264 |             id: `block-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      |                          ^^^^^^^^^^ Cannot call impure function
+  265 |             createdAt: Date.now()
+  266 |         }
+  267 |                                react-hooks/purity
+  264:40   error    Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/widgets/canvas-editor/ui/GlassCanvas/GlassCanvas.tsx:264:40
+  262 |         const clonedBlock = {
+  263 |             ...block,
+> 264 |             id: `block-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      |                                        ^^^^^^^^^^^^^ Cannot call impure function
+  265 |             createdAt: Date.now()
+  266 |         }
+  267 |            react-hooks/purity
+  265:24   error    Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/widgets/canvas-editor/ui/GlassCanvas/GlassCanvas.tsx:265:24
+  263 |             ...block,
+  264 |             id: `block-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+> 265 |             createdAt: Date.now()
+      |                        ^^^^^^^^^^ Cannot call impure function
+  266 |         }
+  267 |
+  268 |         const index = blocks.findIndex(b => b.id === blockId)  react-hooks/purity
+  387:29   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-explicit-any
+  415:29   warning  '_event' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+  415:37   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-explicit-any
+  418:27   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-explicit-any
+  419:69   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-explicit-any
+  420:33   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-explicit-any
+  508:77   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-explicit-any
+  521:119  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-explicit-any
+  550:46   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-explicit-any
+  614:11   warning  'collisionDetectionStrategy' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @typescript-eslint/no-unused-vars
+  710:98   error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-explicit-any
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/widgets/preview-panel/model/usePreviewPanel.ts
+  18:35  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/widgets/preview-panel/ui/PreviewPanel/PreviewPanel.tsx
+   4:10  warning  'useProfileStore' is defined but never used          @typescript-eslint/no-unused-vars
+  14:42  warning  'handleDownload' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/widgets/section-builder/model/useSectionBuilder.ts
+   20:62  warning  'activeBlockId' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   57:43  error    Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  104:81  error    Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  127:75  error    Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/widgets/section-builder/model/useSectionItem.ts
+   18:89  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-explicit-any
+   26:13  warning  'blocks' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @typescript-eslint/no-unused-vars
+  111:13  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/widgets/section-builder/model/useSectionItem.ts:111:13
+  109 |     useEffect(() => {
+  110 |         if (!section.enabled) {
+> 111 |             setWasToggled(false)
+      |             ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  112 |             setIsSettingsOpen(false)
+  113 |         }
+  114 |     }, [section.enabled])  react-hooks/set-state-in-effect
+  142:33  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-explicit-any
+  178:11  warning  'handleOpenSettings' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+  193:61  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-explicit-any
+  193:77  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-explicit-any
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/widgets/section-builder/ui/SectionGroup/SectionGroup.tsx
+  23:5  warning  'category' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/mozzmily/glossybigbro/web-projects/developer-journey/src/widgets/section-builder/ui/SectionItem/SectionItem.tsx
+  51:51  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 209 problems (137 errors, 72 warnings)
+  10 errors and 0 warnings potentially fixable with the `--fix` option.
+

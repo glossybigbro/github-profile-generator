@@ -139,6 +139,22 @@ export const generateSliderAscii = (stats: ProductiveTimeStats): string => {
         '```\n'
 }
 
+/**
+ * Empty State: Coffee Break
+ * Design: No activity detected (0 commits)
+ */
+export const generateCoffeeBreakAscii = (): string => {
+    return '```text\n' +
+        '        [zzz]\n' +
+        '       ( -_-)\n' +
+        '      /|    |\\\n' +
+        '     / |    | \\\n' +
+        '    ￣￣￣￣￣￣￣\n' +
+        '  Currently taking a coffee break ☕\n' +
+        '  (No public activity found... yet!)\n' +
+        '```\n'
+}
+
 import { ProductiveTimeStyleId, PRODUCTIVE_TIME_TITLES, PRODUCTIVE_TIME_LABELS } from '@/entities/profile/config/productive-time'
 
 // --- HELPERS ---

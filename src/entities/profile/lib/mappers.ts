@@ -30,7 +30,10 @@ export const transformStoreToConfig = (store: ProfileState): ExtendedGeneratorCo
         return sectionClone
     })
 
-    // 3. Construct Final Config
+    // 3. Construct Final Config (Optimized for JSON Export & Generator)
+    // We intentionally OMIT the 'sections' array from the exported config
+    // because it is a static widget catalog that bloats the JSON file.
+    // The actual user content is stored entirely within 'blocks'.
     return {
         // Spread base properties
         username: store.username,
@@ -52,8 +55,5 @@ export const transformStoreToConfig = (store: ProfileState): ExtendedGeneratorCo
         // Weekly Settings
         weeklyLanguages: store.weeklyLanguages,
         weeklyProjects: store.weeklyProjects,
-
-        // Normalized Sections (Cast to MarkdownSection[] to bridge Store -> Generator boundary)
-        sections: normalizedSections as MarkdownSection[]
-    }
+    } as ExtendedGeneratorConfig
 }

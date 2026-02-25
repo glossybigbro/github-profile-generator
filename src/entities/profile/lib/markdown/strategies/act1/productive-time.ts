@@ -5,6 +5,7 @@ import {
     generateMinimalDotAscii,
     generateTerminalAscii,
     generateSliderAscii,
+    generateCoffeeBreakAscii,
     getDynamicTitle
 } from '../../ascii-art'
 
@@ -24,7 +25,13 @@ export class ProductiveTimeStrategy implements SectionGenerator {
      * @returns ASCII art block wrapped in markdown code fence
      */
     generate(config: GeneratorConfig, section: MarkdownSection): string {
-        const { productiveTime } = config
+        const blocks = config.blocks || []
+        const timeBlock = blocks.find((b: any) => b.type === 'widget' && b.id === section.id)
+
+        // Use block config if available, otherwise fallback to global config
+        const productiveTime = timeBlock && (timeBlock as any).config?.productiveTime
+            ? (timeBlock as any).config.productiveTime
+            : config.productiveTime
 
         // Safety check: if no productive time config exists, return empty
         if (!productiveTime || !productiveTime.stats) {
@@ -39,25 +46,31 @@ export class ProductiveTimeStrategy implements SectionGenerator {
             return `${title}\n${ascii}`
         }
 
-        // Select the appropriate generator based on style ID
+        const totalCommits = stats.commits.morning + stats.commits.daytime + stats.commits.evening + stats.commits.night
+
+        // Select the appropriate generator based on style ID or empty state
         let ascii = ''
-        switch (style) {
-            case 'modern':
-                ascii = generateModernSquareAscii(stats)
-                break
-            case 'minimal':
-                ascii = generateMinimalDotAscii(stats)
-                break
-            case 'terminal':
-                ascii = generateTerminalAscii(stats)
-                break
-            case 'slider':
-                ascii = generateSliderAscii(stats)
-                break
-            case 'cyber':
-            default:
-                ascii = generateCyberDeckAscii(stats)
-                break
+        if (totalCommits === 0) {
+            ascii = generateCoffeeBreakAscii()
+        } else {
+            switch (style) {
+                case 'modern':
+                    ascii = generateModernSquareAscii(stats)
+                    break
+                case 'minimal':
+                    ascii = generateMinimalDotAscii(stats)
+                    break
+                case 'terminal':
+                    ascii = generateTerminalAscii(stats)
+                    break
+                case 'slider':
+                    ascii = generateSliderAscii(stats)
+                    break
+                case 'cyber':
+                default:
+                    ascii = generateCyberDeckAscii(stats)
+                    break
+            }
         }
 
         const content = withTitle(ascii)
