@@ -1,131 +1,89 @@
-import { octokit, retryWithBackoff } from './client'
-import { isGitHubError } from '../model/github-dto'
-
-/**
- * Language statistics interface
- */
-export interface LanguageData {
-    name: string
-    bytes: number
-    repoCount: number
-}
+import { getOctokit, retryWithBackoff } from './client'
 
 export interface AggregatedLanguageStats {
     name: string
-    count: number  // number of repos using this language
-    percent: number  // percentage based on total bytes across all languages
+    count: number
+    percent: number
 }
 
 /**
- * Fetch all repositories for a given user
- */
-export async function fetchUserRepositories(username: string): Promise<any[]> {
-    try {
-        return await retryWithBackoff(async () => {
-            const { data } = await octokit.rest.repos.listForUser({
-                username,
-                per_page: 100,  // Max 100 repos
-                sort: 'updated',
-                direction: 'desc'
-            })
-            return data
-        })
-    } catch (error) {
-        if (isGitHubError(error)) {
-            if (error.status === 404) {
-                throw new Error(`User "${username}" not found`)
-            }
-            if (error.status === 403) {
-                throw new Error('GitHub API rate limit exceeded. Please try again later.')
-            }
-            throw new Error(`GitHub API error: ${error.message}`)
-        }
-        throw new Error('Network error. Please check your connection and try again.')
-    }
-}
-
-/**
- * Fetch languages for a single repository
- */
-export async function fetchRepositoryLanguages(
-    owner: string,
-    repo: string
-): Promise<Record<string, number>> {
-    try {
-        const { data } = await octokit.rest.repos.listLanguages({
-            owner,
-            repo
-        })
-        return data
-    } catch (error) {
-        // Silently fail for individual repos to avoid blocking entire analysis
-        console.warn(`Failed to fetch languages for ${owner}/${repo}:`, error)
-        return {}
-    }
-}
-
-/**
- * Aggregate language statistics from multiple repositories
- */
-export function aggregateLanguageStats(
-    reposWithLanguages: Array<{ languages: Record<string, number> }>
-): AggregatedLanguageStats[] {
-    const languageMap = new Map<string, LanguageData>()
-
-    // Aggregate bytes and repo count for each language
-    reposWithLanguages.forEach(({ languages }) => {
-        Object.entries(languages).forEach(([name, bytes]) => {
-            const existing = languageMap.get(name) || { name, bytes: 0, repoCount: 0 }
-            languageMap.set(name, {
-                name,
-                bytes: existing.bytes + bytes,
-                repoCount: existing.repoCount + 1
-            })
-        })
-    })
-
-    // Calculate total bytes for percentage calculation
-    const totalBytes = Array.from(languageMap.values()).reduce(
-        (sum, lang) => sum + lang.bytes,
-        0
-    )
-
-    // Convert to array and calculate percentages
-    const stats: AggregatedLanguageStats[] = Array.from(languageMap.values())
-        .map(lang => ({
-            name: lang.name,
-            count: lang.repoCount,
-            percent: totalBytes > 0 ? Math.round((lang.bytes / totalBytes) * 100 * 100) / 100 : 0
-        }))
-        .sort((a, b) => b.percent - a.percent)  // Sort by percentage descending
-
-    return stats
-}
-
-/**
- * Main function to analyze weekly languages for a user
+ * Analyze weekly languages using GraphQL — 100% identical to scriptGenerator.ts backend
+ * 
+ * This function uses the EXACT same GraphQL query and aggregation logic
+ * as the GitHub Action backend (scriptGenerator.ts > fetchUserRepositories + calculateWeeklyLanguages)
+ * to guarantee identical output between the Editor preview and the deployed Action.
+ * 
+ * Requires a GitHub Personal Access Token (PAT) for GraphQL API access.
  */
 export async function analyzeWeeklyLanguages(
-    username: string
+    username: string,
+    token?: string
 ): Promise<AggregatedLanguageStats[]> {
-    // 1. Fetch user repositories
-    const repos = await fetchUserRepositories(username)
+    const octokit = getOctokit(token)
 
-    if (repos.length === 0) {
-        throw new Error('No public repositories found for this user')
+    try {
+        return await retryWithBackoff(async () => {
+            // ===== STEP 1: Fetch Repositories via GraphQL =====
+            // This query is IDENTICAL to scriptGenerator.ts > fetchUserRepositories
+            const query = `
+                query($login: String!) {
+                    user(login: $login) {
+                        repositories(first: 100, isFork: false, orderBy: {field: PUSHED_AT, direction: DESC}) {
+                            nodes {
+                                name
+                                pushedAt
+                                languages(first: 10, orderBy: {field: SIZE, direction: DESC}) {
+                                    edges { size node { name } }
+                                }
+                            }
+                        }
+                    }
+                }
+            `
+            const repoRes: any = await octokit.graphql(query, { login: username })
+            const repos = repoRes?.user?.repositories?.nodes || []
+
+            if (repos.length === 0) {
+                return []
+            }
+
+            // ===== STEP 2: Aggregate Languages =====
+            // This logic is IDENTICAL to scriptGenerator.ts > calculateWeeklyLanguages
+            const langMap = new Map<string, { size: number, count: number }>()
+            let totalBytes = 0
+
+            const sevenDaysAgo = new Date()
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+
+            for (const repo of repos) {
+                if (!repo.languages?.edges) continue
+                // Apply 7-day limit (identical to backend)
+                if (repo.pushedAt && new Date(repo.pushedAt) < sevenDaysAgo) continue
+
+                for (const { size, node } of repo.languages.edges) {
+                    const current = langMap.get(node.name) || { size: 0, count: 0 }
+                    langMap.set(node.name, { size: current.size + size, count: current.count + 1 })
+                    totalBytes += size
+                }
+            }
+
+            // ===== STEP 3: Calculate percentages =====
+            // Math.round((val.size / totalBytes) * 100 * 100) / 100 — identical to backend
+            const results: AggregatedLanguageStats[] = Array.from(langMap.entries()).map(([name, val]) => ({
+                name,
+                count: val.count,
+                percent: totalBytes > 0 ? Math.round((val.size / totalBytes) * 100 * 100) / 100 : 0
+            }))
+
+            return results.sort((a, b) => b.percent - a.percent)
+        })
+    } catch (error: any) {
+        if (error?.status === 401) {
+            throw new Error('GitHub Token is invalid or expired. Please check your token and try again.')
+        }
+        if (error?.status === 403) {
+            throw new Error('GitHub API rate limit exceeded. Please add a valid GitHub Token for higher limits.')
+        }
+        throw new Error(error?.message || 'Failed to fetch GitHub language data. Please check your token and try again.')
     }
-
-    // 2. Fetch languages for each repository (with batching to avoid rate limits)
-    const reposWithLanguages: Array<{ languages: Record<string, number> }> = []
-
-    for (const repo of repos) {
-        const languages = await fetchRepositoryLanguages(repo.owner.login, repo.name)
-        reposWithLanguages.push({ languages })
-
-        // Small delay to avoid hitting rate limits
-        await new Promise(resolve => setTimeout(resolve, 100))
-    }
-
-    // 3. Aggregate and return statistics
-    return aggregateLanguageStats(reposWithLanguages)
 }

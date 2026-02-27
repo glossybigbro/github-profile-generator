@@ -3,12 +3,40 @@ import { GitHubError, isGitHubError } from '../model/github-dto';
 
 import { GITHUB_API_CONFIG } from '../config/api-constants';
 
+/**
+ * Default Octokit instance (unauthenticated or env-based)
+ */
 const octokit = new Octokit({
     auth: process.env.GITHUB_TOKEN, // Optional: for higher rate limits
     request: {
         timeout: GITHUB_API_CONFIG.TIMEOUT_MS,
     }
 });
+
+/**
+ * Create a new Octokit instance with the given token
+ * Used by the Editor frontend when the user provides their GitHub PAT
+ */
+export function createAuthenticatedOctokit(token: string): Octokit {
+    return new Octokit({
+        auth: token,
+        request: {
+            timeout: GITHUB_API_CONFIG.TIMEOUT_MS,
+        }
+    });
+}
+
+/**
+ * Get the best available Octokit instance.
+ * If a token is provided, creates an authenticated instance.
+ * Otherwise, returns the default (unauthenticated) instance.
+ */
+export function getOctokit(token?: string): Octokit {
+    if (token && token.trim().length > 0) {
+        return createAuthenticatedOctokit(token);
+    }
+    return octokit;
+}
 
 
 /**
@@ -48,6 +76,3 @@ export async function retryWithBackoff<T>(
 
 // Export for use in Entities
 export { octokit };
-
-
-

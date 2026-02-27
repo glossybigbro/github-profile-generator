@@ -40,15 +40,8 @@ export class ProductiveTimeStrategy implements SectionGenerator {
 
         const { style, stats } = productiveTime
 
-        // Helper to prepend title
-        const withTitle = (ascii: string) => {
-            const title = getDynamicTitle(style, stats)
-            return `${title}\n${ascii}`
-        }
-
         const totalCommits = stats.commits.morning + stats.commits.daytime + stats.commits.evening + stats.commits.night
 
-        // Select the appropriate generator based on style ID or empty state
         let ascii = ''
         if (totalCommits === 0) {
             ascii = generateCoffeeBreakAscii()
@@ -73,8 +66,6 @@ export class ProductiveTimeStrategy implements SectionGenerator {
             }
         }
 
-        const content = withTitle(ascii)
-
-        return content
+        return ascii
     }
 }

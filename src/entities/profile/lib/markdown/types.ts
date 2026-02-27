@@ -114,7 +114,6 @@ export interface GeneratorConfig {
         style: 'progress' | 'emoji' | 'compact'
         count: number
         sortBy: 'usage' | 'alphabetical' | 'recent'
-        periodDays: number
         excludeLanguages: string[]
     }
 
@@ -122,7 +121,6 @@ export interface GeneratorConfig {
         style: 'progress' | 'emoji' | 'compact'
         count: number
         sortBy: 'commits' | 'alphabetical' | 'recent'
-        periodDays: number
     }
 }
 

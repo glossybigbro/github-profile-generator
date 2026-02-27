@@ -10,36 +10,53 @@ import styles from './WeeklyProjectsPreview.module.css'
 
 interface WeeklyProjectsPreviewProps {
     block: Block
+    isFirst?: boolean
 }
 
-export function WeeklyProjectsPreview({ block }: WeeklyProjectsPreviewProps) {
+export function WeeklyProjectsPreview({ block, isFirst }: WeeklyProjectsPreviewProps) {
     const globalWeeklyProjects = useProfileStore(state => state.weeklyProjects)
 
     const blockConfig = (block as any).config || {}
     // Use block-specific config if it exists, otherwise fallback to global
     const weeklyProjects = blockConfig.weeklyProjects || globalWeeklyProjects
 
+    const githubToken = useProfileStore(state => state.githubToken)
+
     const {
-        useRealData = false,
+        useRealData: configUseRealData = false,
         realData = null
     } = blockConfig
 
+    // Force mock mode if there is no token
+    const useRealData = configUseRealData && !!githubToken
+
     const themeColor = weeklyProjects.themeColor || 'green'
 
+    const defaultTitle = `🐱💻 Weekly Projects`
+
     // Editable title state
-    const [title, setTitle] = useState(() => {
-        const periodLabel = weeklyProjects.periodDays === 7 ? 'Week' : `${weeklyProjects.periodDays} Days`
-        return blockConfig.title || `🐱💻 Weekly Projects (Last ${periodLabel})`
-    })
+    const [title, setTitle] = useState(() => blockConfig.title || defaultTitle)
     const titleRef = useRef<HTMLDivElement>(null)
 
-    // Update title when period changes
+    // Update title when empty
     useEffect(() => {
-        if (!blockConfig.title) {
-            const periodLabel = weeklyProjects.periodDays === 7 ? 'Week' : `${weeklyProjects.periodDays} Days`
-            setTitle(`🐱💻 Weekly Projects (Last ${periodLabel})`)
+        if (!blockConfig.title || /^🐱💻 Weekly Projects( \(Last (Week|\d+ Days)\))?$/.test(blockConfig.title)) {
+            setTitle(defaultTitle)
+
+            // Sync up the config so it doesn't hold the stale period string
+            if (block.id && blockConfig.title) {
+                const { useBlockStore } = require('@/entities/block/model/useBlockStore')
+                const blocks = useBlockStore.getState().blocks
+                const currentBlock = blocks.find((b: any) => b.id === block.id)
+                if (currentBlock && currentBlock.type === 'widget') {
+                    const currentConfig = (currentBlock as any).config || {}
+                    useBlockStore.getState().updateBlock(block.id, {
+                        config: { ...currentConfig, title: defaultTitle }
+                    })
+                }
+            }
         }
-    }, [weeklyProjects.periodDays, blockConfig.title])
+    }, [])
 
     // Listen for focus-widget-title event to move cursor to title end
     useEffect(() => {
@@ -61,9 +78,11 @@ export function WeeklyProjectsPreview({ block }: WeeklyProjectsPreviewProps) {
         return () => window.removeEventListener('focus-widget-title', handleFocusTitle as EventListener)
     }, [block])
 
+    // Apply dynamic multiplier to mock data based on period to make it visibly change
+    const periodMultiplier = weeklyProjects.periodDays === 7 ? 1 : weeklyProjects.periodDays === 14 ? 2 : 4.2
     const projects = useRealData && realData
         ? realData
-        : MOCK_PROJECT_DATA
+        : MOCK_PROJECT_DATA.map(p => ({ ...p, commits: Math.round(p.commits * periodMultiplier) }))
 
     // Apply sorting
     let sortedProjects = [...projects]
@@ -96,9 +115,11 @@ export function WeeklyProjectsPreview({ block }: WeeklyProjectsPreviewProps) {
         let chart = ''
 
         filteredProjects.forEach((proj: { name: string; commits: number; percent: number }) => {
-            const namePad = proj.name.padEnd(20, ' ')
-            const statPad = `${proj.commits} contribs`.padEnd(15, ' ')
-            const percentPad = `${proj.percent} %`.padStart(7, ' ')
+            const safeName = proj.name.length > 26 ? proj.name.substring(0, 26) + '..' : proj.name
+            const namePad = safeName.padEnd(28, ' ')
+            const commitsStr = String(proj.commits).padStart(8, ' ')
+            const statPad = `${commitsStr} contribs`.padEnd(26, ' ')
+            const percentPad = `${proj.percent} %`.padStart(8, ' ')
 
             let visualBar = ''
 
@@ -140,7 +161,7 @@ export function WeeklyProjectsPreview({ block }: WeeklyProjectsPreviewProps) {
     }
 
     return (
-        <div className={styles.previewWrapper} style={{ marginTop: '12px' }}>
+        <div className={styles.previewWrapper} style={{ marginTop: isFirst ? '0px' : '12px' }}>
             <div className={styles.codeBlock}>
                 {/* Editable Title */}
                 <div
@@ -164,11 +185,25 @@ export function WeeklyProjectsPreview({ block }: WeeklyProjectsPreviewProps) {
                     {generateDataChart()}
                 </pre>
             </div>
-            {!useRealData && (
-                <div className={styles.mockBadge}>
-                    📊 Mock Data (Click "Analyze My Activity" to load real stats)
-                </div>
-            )}
+            {!useRealData && (() => {
+                const githubToken = useProfileStore.getState().githubToken
+                const badgeText = !githubToken
+                    ? '🔒 Preview Mode: Connect API Key'
+                    : '📊 Preview Data: Click Analyze'
+                return (
+                    <div
+                        className={styles.mockOverlay}
+                        onClick={() => {
+                            window.dispatchEvent(new CustomEvent('focus-widget-title', {
+                                detail: { widgetType: 'weekly-projects' }
+                            }))
+                        }}
+                        title={!githubToken ? 'Click to connect your GitHub Token' : 'Click Analyze in settings to load real data'}
+                    >
+                        <div className={styles.mockBadge}>{badgeText}</div>
+                    </div>
+                )
+            })()}
         </div>
     )
 }

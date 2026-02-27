@@ -1,0 +1,128 @@
+.widgetWrapper {
+    width: 100%;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    position: relative;
+}
+
+.previewContainer {
+    width: 100%;
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 120px;
+}
+
+.loading,
+.error {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+}
+
+.error {
+    color: #ff4d4d;
+    border-color: rgba(255, 77, 77, 0.3);
+}
+
+.lockedContainer {
+    background: rgba(0, 0, 0, 0.2);
+    gap: 8px;
+}
+
+.lockedIcon {
+    font-size: 24px;
+}
+
+.lockedTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    margin-top: 4px;
+}
+
+.lockedSub {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.connectBtn {
+    margin-top: 12px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.connectBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.codeBlock {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 16px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.9);
+    overflow-x: auto;
+}
+
+.codeBlock pre {
+    margin: 0;
+    white-space: pre;
+}
+
+.editableTitle {
+    color: #e5e7eb;
+    font-weight: bold;
+    font-size: 15px;
+    padding-bottom: 4px;
+    margin-bottom: 12px;
+}
+
+/* Mock UI Overlay */
+.mockOverlay {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.mockOverlay:hover {
+    transform: scale(1.05);
+}
+
+.mockBadge {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.mockOverlay:hover .mockBadge {
+    background: rgba(176, 38, 255, 0.3);
+    border-color: rgba(176, 38, 255, 0.6);
+    color: #df9cff;
+}

@@ -11,12 +11,14 @@ import {
     getDynamicTitle
 } from '@/entities/profile/lib/markdown/ascii-art'
 import { useProfileStore } from '@/entities/profile/model/useProfileStore'
+import styles from './ProductiveTimePreview.module.css'
 
 interface ProductiveTimePreviewProps {
     block: Block
+    isFirst?: boolean
 }
 
-export function ProductiveTimePreview({ block }: ProductiveTimePreviewProps) {
+export function ProductiveTimePreview({ block, isFirst }: ProductiveTimePreviewProps) {
     const { accentColor } = useProfileStore()
 
     // Retrieve config from block
@@ -66,24 +68,16 @@ export function ProductiveTimePreview({ block }: ProductiveTimePreviewProps) {
 
     const title = totalCommits === 0 ? '☕ Taking a Break' : getDynamicTitle(style, stats)
 
+    // For the UI, the title is rendered externally using .editableTitle CSS.
+    // So we strip the title and the following newline from the ASCII string.
+    const displayAscii = totalCommits === 0 ? cleanAscii : cleanAscii.replace(/^[^\n]+\n\n/, '')
+
     return (
-        <div style={{
-            width: '100%',
-            marginTop: '12px',
-            marginBottom: '12px',
-            backgroundColor: '#0d1117',
-            borderRadius: '6px',
-            border: '1px solid #30363d',
-            padding: '16px',
-            fontFamily: 'monospace',
-            whiteSpace: 'pre',
-            overflowX: 'auto',
-            fontSize: '12px',
-            lineHeight: '1.5',
-            color: '#c9d1d9'
-        }}>
-            <div style={{ marginBottom: '12px', fontWeight: 'bold', color: accentColor }}>{title}</div>
-            <div style={{ color: 'inherit' }}>{cleanAscii}</div>
+        <div className={styles.previewWrapper} style={{ marginTop: isFirst ? '0px' : '12px' }}>
+            <div className={styles.codeBlock}>
+                <div className={styles.editableTitle}>{title}</div>
+                <pre>{displayAscii}</pre>
+            </div>
         </div>
     )
 }

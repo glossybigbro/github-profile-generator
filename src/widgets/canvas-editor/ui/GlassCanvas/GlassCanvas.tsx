@@ -12,6 +12,7 @@ import { WeeklyLanguagePreview } from '@/features/section-stats/ui/WeeklyLanguag
 import { WeeklyProjectsPreview } from '@/features/section-stats/ui/WeeklyProjectsPreview/WeeklyProjectsPreview'
 import { ActivityGraphPreview } from '@/features/section-stats/ui/ActivityGraphPreview/ActivityGraphPreview'
 import { ProductiveTimePreview } from '@/features/section-stats/ui/ProductiveTimePreview/ProductiveTimePreview'
+import { WakaTenThousandPreview } from '@/features/section-stats/ui/WakaTenThousandPreview'
 import { markdownToHtml, htmlToMarkdown } from '@/shared/lib/markdown/simpleConverter'
 import { copyBlocksToClipboard, getBlockClipboard } from '@/entities/block/model/blockClipboard'
 import { SortableBlock } from '@/entities/block/ui/SortableBlock'
@@ -294,6 +295,13 @@ export function GlassCanvas({
             // If we have no block clipboard data, let browser/TextBlock handle natively
             if (clipboard.length === 0) return
 
+            // Don't intercept paste when user is typing in a real input/textarea/select (e.g. modals)
+            const target = e.target as HTMLElement
+            const isFormElement = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT'
+            // Also skip non-canvas contenteditable elements (e.g. widget title editors)
+            const isNonBlockContentEditable = target.isContentEditable && !target.closest('[data-placeholder]')
+            if (isFormElement || isNonBlockContentEditable) return
+
             e.preventDefault()
             e.stopPropagation()
 
@@ -482,8 +490,9 @@ export function GlassCanvas({
         onReorderBlocks(newBlocks)
     }
 
-    const renderBlock = (block: Block) => {
+    const renderBlock = (block: Block, index: number) => {
         const isActive = block.id === activeBlockId
+        const isFirst = index === 0
         const onFocus = () => onSetActiveBlock(block.id)
         const onBlur = () => { }
         const onUpdate = (updates: Partial<Block>) => onUpdateBlock(block.id, updates)
@@ -558,18 +567,21 @@ export function GlassCanvas({
                     )
                 }
                 if (widgetType === 'weekly-languages') {
-                    return <WeeklyLanguagePreview key={block.id} block={block} />
+                    return <WeeklyLanguagePreview key={block.id} block={block} isFirst={isFirst} />
                 }
                 if (widgetType === 'weekly-projects') {
                     // Dynamic import or direct import if already imported at top
                     // Assuming we will add import at top
-                    return <WeeklyProjectsPreview key={block.id} block={block} />
+                    return <WeeklyProjectsPreview key={block.id} block={block} isFirst={isFirst} />
                 }
                 if (widgetType === 'activity-graph') {
-                    return <ActivityGraphPreview key={block.id} block={block} />
+                    return <ActivityGraphPreview key={block.id} block={block} isFirst={isFirst} />
                 }
                 if (widgetType === 'productive-time') {
-                    return <ProductiveTimePreview key={block.id} block={block} />
+                    return <ProductiveTimePreview key={block.id} block={block} isFirst={isFirst} />
+                }
+                if (widgetType === 'waka-10k-hours') {
+                    return <WakaTenThousandPreview key={block.id} block={block} isFirst={isFirst} />
                 }
                 return null
         }
@@ -604,7 +616,7 @@ export function GlassCanvas({
                         </svg>
                     </div>
                 </div>
-                {renderBlock(block)}
+                {renderBlock(block, 0)}
             </div>
         )
     }
@@ -692,7 +704,7 @@ export function GlassCanvas({
                                         }
                                         dropDirection={dropDirection}
                                     >
-                                        {renderBlock(block)}
+                                        {renderBlock(block, -1)}
                                     </SortableBlock>
                                 </div>
                             ))

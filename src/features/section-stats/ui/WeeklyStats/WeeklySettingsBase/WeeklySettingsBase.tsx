@@ -137,22 +137,7 @@ export function WeeklySettingsBase<SortType extends string>({ config, setConfig,
                 </div>
             </div>
 
-            {/* Period Selection */}
-            <div className={styles.settingsSection}>
-                <span className={styles.sectionTitle}>Time Period</span>
-                <div className={styles.buttonGroup}>
-                    {PERIOD_OPTIONS.map(option => (
-                        <button
-                            key={option.days}
-                            className={`${styles.settingsButton} ${periodDays === option.days ? styles.active : ''}`}
-                            onClick={() => handlePeriodChange(option.days)}
-                            type="button"
-                        >
-                            {option.label}
-                        </button>
-                    ))}
-                </div>
-            </div>
+
 
             {/* Extra Content (e.g. Exclude Languages) */}
             {children}

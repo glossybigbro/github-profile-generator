@@ -48,6 +48,7 @@ export function SectionGroup({
                         items={sections.map(s => s.id)}
                         strategy={verticalListSortingStrategy}
                     >
+
                         {sections.map((section) => (
                             <SectionItem
                                 key={section.id}

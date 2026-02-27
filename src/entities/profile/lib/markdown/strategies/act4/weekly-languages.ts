@@ -1,5 +1,5 @@
 import { ExtendedGeneratorConfig, MarkdownSection } from '@/entities/profile/lib/markdown/types'
-import { generateProgressBar } from '@/entities/profile/lib/markdown/utils'
+import { generateProgressBar, generateEmojiBar, generateCompactBadge } from '@/entities/profile/lib/markdown/utils'
 
 // Mock Data logic for now (since we fetch real data client-side for Preview but Generator needs it too)
 // In a full implementation, we'd pass the fetched 'repos' data in the config. 
@@ -22,9 +22,7 @@ export class GitHubLanguagesGenerator {
         const globalWeeklyLanguages = config.weeklyLanguages || {}
         const weeklyLanguagesConfig = blockConfig.weeklyLanguages || globalWeeklyLanguages
 
-        const periodDays = weeklyLanguagesConfig.periodDays || 7
-        const periodStr = periodDays === 7 ? '(Last Week)' : periodDays === 14 ? '(Last 2 Weeks)' : `(Last ${periodDays} Days)`
-        const title = blockConfig.title || `💬 Weekly Languages ${periodStr}`
+        const title = blockConfig.title || `💬 Weekly Languages`
         let markdown = '```text\n'
         markdown += `${title}\n\n`
 
@@ -61,18 +59,40 @@ export class GitHubLanguagesGenerator {
             .filter(lang => !excludeLanguages.includes(lang.name))
             .slice(0, countLimit)
 
+        // Map colors securely inside entity
+        const THEME_COLORS_MAP: Record<string, { square: string, circle: string }> = {
+            blue: { square: '🟦', circle: '🔵' },
+            green: { square: '🟩', circle: '🟢' },
+            purple: { square: '🟪', circle: '🟣' },
+            orange: { square: '🟧', circle: '🟠' },
+            red: { square: '🟥', circle: '🔴' }
+        }
+
+        const visualizationStyle = weeklyLanguagesConfig.style || 'progress'
+        const themeColor = weeklyLanguagesConfig.themeColor || 'blue'
+        const emojis = THEME_COLORS_MAP[themeColor] || THEME_COLORS_MAP['blue']
+
         if (filteredLanguages.length === 0) {
-            markdown += '>_ Productive Time\n\n' +
-                '   ╭────────────────────────────╮\n' +
+            markdown += '   ╭────────────────────────────╮\n' +
                 '   │   NO ACTIVITY DETECTED     │\n' +
                 '   │   Waiting for daily code.  │\n' +
                 '   ╰────────────────────────────╯\n'
         } else {
             filteredLanguages.forEach(lang => {
-                const bar = generateProgressBar(lang.percent, 25)
-                const namePad = lang.name.padEnd(15, ' ')
-                const statPad = `${lang.count} Repos`.padEnd(15, ' ')
-                const percentPad = `${lang.percent} %`.padStart(7, ' ')
+                let bar = ''
+                if (visualizationStyle === 'progress') {
+                    bar = generateProgressBar(lang.percent, 25)
+                } else if (visualizationStyle === 'emoji') {
+                    bar = generateEmojiBar(lang.percent, emojis.square, 10)
+                } else if (visualizationStyle === 'compact') {
+                    bar = generateCompactBadge(emojis.circle)
+                }
+
+                const safeName = lang.name.length > 26 ? lang.name.substring(0, 26) + '..' : lang.name
+                const namePad = safeName.padEnd(28, ' ')
+                const repoStr = String(lang.count).padStart(8, ' ')
+                const statPad = `${repoStr} Repos`.padEnd(26, ' ')
+                const percentPad = `${lang.percent} %`.padStart(8, ' ')
 
                 markdown += `${namePad} ${statPad} ${bar} ${percentPad}\n`
             })

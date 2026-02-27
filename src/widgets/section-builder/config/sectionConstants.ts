@@ -17,5 +17,6 @@ export const CUSTOMIZABLE_SECTION_IDS = [
     'productive-time',
     'weekly-languages',
     'weekly-projects',
+    'waka-10k-hours',
     'yaml-bio'
 ] as const

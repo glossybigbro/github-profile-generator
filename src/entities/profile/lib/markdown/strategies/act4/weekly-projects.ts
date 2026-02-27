@@ -1,5 +1,5 @@
 import { ExtendedGeneratorConfig, MarkdownSection } from '@/entities/profile/lib/markdown/types'
-import { generateProgressBar } from '@/entities/profile/lib/markdown/utils'
+import { generateProgressBar, generateEmojiBar, generateCompactBadge } from '@/entities/profile/lib/markdown/utils'
 
 export class GitHubProjectsGenerator {
     static generate(config: ExtendedGeneratorConfig, section: MarkdownSection): string {
@@ -36,9 +36,7 @@ export class GitHubProjectsGenerator {
         const weeklyProjectsConfig = blockConfig.weeklyProjects || config.weeklyProjects || {}
 
         const limit = weeklyProjectsConfig.count || defaultLimit
-        const periodDays = weeklyProjectsConfig.periodDays || 7
-        const periodStr = periodDays === 7 ? '(Last Week)' : periodDays === 14 ? '(Last 2 Weeks)' : `(Last ${periodDays} Days)`
-        const title = blockConfig.title || `🐱💻 Weekly Projects ${periodStr}`
+        const title = blockConfig.title || `🐱💻 Weekly Projects`
 
         let markdown = '```text\n'
         markdown += `${title}\n\n`
@@ -67,6 +65,19 @@ export class GitHubProjectsGenerator {
 
         const finalProjects = sortedProjects.slice(0, limit)
 
+        // Map colors securely inside entity
+        const THEME_COLORS_MAP: Record<string, { square: string, circle: string }> = {
+            blue: { square: '🟦', circle: '🔵' },
+            green: { square: '🟩', circle: '🟢' },
+            purple: { square: '🟪', circle: '🟣' },
+            orange: { square: '🟧', circle: '🟠' },
+            red: { square: '🟥', circle: '🔴' }
+        }
+
+        const visualizationStyle = weeklyProjectsConfig.style || 'progress'
+        const themeColor = weeklyProjectsConfig.themeColor || 'green'
+        const emojis = THEME_COLORS_MAP[themeColor] || THEME_COLORS_MAP['green']
+
         if (finalProjects.length === 0) {
             markdown += '     .-.\n' +
                 '   (o o) boo!\n' +
@@ -77,10 +88,20 @@ export class GitHubProjectsGenerator {
                 '  (Or maybe just working in private repos...)\n'
         } else {
             finalProjects.forEach((proj: any) => {
-                const bar = generateProgressBar(proj.percent, 25)
-                const namePad = proj.name.padEnd(20, ' ')
-                const statPad = `${proj.commits} commits`.padEnd(15, ' ')
-                const percentPad = `${proj.percent} %`.padStart(7, ' ')
+                let bar = ''
+                if (visualizationStyle === 'progress') {
+                    bar = generateProgressBar(proj.percent, 25)
+                } else if (visualizationStyle === 'emoji') {
+                    bar = generateEmojiBar(proj.percent, emojis.square, 10)
+                } else if (visualizationStyle === 'compact') {
+                    bar = generateCompactBadge(emojis.circle)
+                }
+
+                const safeName = proj.name.length > 26 ? proj.name.substring(0, 26) + '..' : proj.name
+                const namePad = safeName.padEnd(28, ' ')
+                const commitsStr = String(proj.commits).padStart(8, ' ')
+                const statPad = `${commitsStr} contribs`.padEnd(26, ' ')
+                const percentPad = `${proj.percent} %`.padStart(8, ' ')
 
                 markdown += `${namePad} ${statPad} ${bar} ${percentPad}\n`
             })

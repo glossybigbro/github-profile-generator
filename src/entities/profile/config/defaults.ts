@@ -1,19 +1,20 @@
 import { GeneratorConfig } from '../lib/markdown/types'
 import { ProductiveTimeStyleId } from './productive-time'
 
-export const DEFAULT_WEEKLY_SETTINGS = {
-    LANGUAGES: {
-        style: 'compact' as const,
+export const WEEKLY_LANGUAGES_DEFAULTS = {
+    weeklyLanguages: {
+        style: 'progress' as const,
         count: 5,
-        sortBy: 'usage' as const,
-        periodDays: 7,
-        excludeLanguages: [] as string[]
-    },
-    PROJECTS: {
-        style: 'compact' as const,
-        count: 3,
-        sortBy: 'commits' as const,
-        periodDays: 7
+        excludeLanguages: ['Markdown', 'JSON', 'YAML', 'Text', 'XML', 'HTML', 'CSS', 'Shell', 'Dockerfile'],
+        sortBy: 'usage' as const
+    }
+}
+
+export const WEEKLY_PROJECTS_DEFAULTS = {
+    weeklyProjects: {
+        style: 'progress' as const,
+        count: 5,
+        sortBy: 'commits' as const
     }
 }
 
@@ -63,8 +64,8 @@ export const createDefaultConfig = (username: string): GeneratorConfig => ({
     },
 
     // Weekly Settings Defaults
-    weeklyLanguages: DEFAULT_WEEKLY_SETTINGS.LANGUAGES,
-    weeklyProjects: DEFAULT_WEEKLY_SETTINGS.PROJECTS,
+    weeklyLanguages: WEEKLY_LANGUAGES_DEFAULTS.weeklyLanguages,
+    weeklyProjects: WEEKLY_PROJECTS_DEFAULTS.weeklyProjects,
 
     sections: []
 })

@@ -1,4 +1,4 @@
-import { octokit, retryWithBackoff } from './client'
+import { getOctokit, retryWithBackoff } from './client'
 import { isGitHubError } from '../model/github-dto'
 
 export interface ProjectStats {
@@ -28,14 +28,21 @@ interface CreateEvent {
 /**
  * Fetch public events for a user
  */
-export async function fetchUserEvents(username: string): Promise<any[]> {
+export async function fetchUserEvents(username: string, token?: string): Promise<any[]> {
+    const octokit = getOctokit(token)
     try {
         return await retryWithBackoff(async () => {
-            const { data } = await octokit.rest.activity.listPublicEventsForUser({
-                username,
-                per_page: 100 // Max limit to get most recent activity
-            })
-            return data
+            const events = []
+            for (let page = 1; page <= 3; page++) {
+                const { data } = await octokit.rest.activity.listPublicEventsForUser({
+                    username,
+                    per_page: 100, // Max limit per page
+                    page
+                })
+                events.push(...data)
+                if (data.length < 100) break
+            }
+            return events
         })
     } catch (error: any) {
         if (isGitHubError(error)) {
@@ -59,11 +66,17 @@ export function aggregateProjectStats(events: any[]): ProjectStats[] {
     const projectMap = new Map<string, number>()
     let totalCount = 0
 
+    const sevenDaysAgo = new Date()
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+
     events.forEach(event => {
+        if (!event.created_at || new Date(event.created_at) < sevenDaysAgo) return
+
         let count = 0
 
         if (event.type === 'PushEvent') {
-            count = (event as PushEvent).payload.commits?.length || 0
+            const payload = (event as PushEvent).payload as any
+            count = payload.commits?.length || payload.size || 1
         } else if (event.type === 'PullRequestEvent') {
             const action = (event as PullRequestEvent).payload.action
             if (action === 'opened' || action === 'closed') {
@@ -96,10 +109,11 @@ export function aggregateProjectStats(events: any[]): ProjectStats[] {
  * Main function to analyze weekly projects for a user
  */
 export async function analyzeWeeklyProjects(
-    username: string
+    username: string,
+    token?: string
 ): Promise<ProjectStats[]> {
     // 1. Fetch user events
-    const events = await fetchUserEvents(username)
+    const events = await fetchUserEvents(username, token)
 
     // 2. Aggregate stats from PushEvents
     return aggregateProjectStats(events)

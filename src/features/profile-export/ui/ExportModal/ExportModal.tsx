@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useProfileExport } from '../../model/useProfileExport'
 import { useBlockStore } from '@/entities/block/model/useBlockStore'
+import { useProfileStore } from '@/entities/profile/model/useProfileStore'
 import { ExportTutorial } from '../ExportTutorial/ExportTutorial'
 import styles from './ExportModal.module.css'
 
@@ -16,6 +17,8 @@ type Tab = 'export' | 'import'
 export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => {
     const { markdown, handleDownload, isCopied, copyToClipboard, restoreConfig, setExportCronFrequency } = useProfileExport()
     const blocks = useBlockStore((state) => state.blocks)
+    const timezone = useProfileStore((state) => state.timezone)
+    const setTimezone = useProfileStore((state) => state.setTimezone)
     const [activeTab, setActiveTab] = useState<Tab>('export')
     const [mounted, setMounted] = useState(false)
     const [cronFrequency, setCronFrequency] = useState('0 0 * * *') // Daily
@@ -30,9 +33,15 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
         if (e.target === e.currentTarget) onClose()
     }
 
-    // Dynamic 위젯이 포함되어 있는지 확인 (Action 기반)
-    const ACTIONS_REQUIRED_WIDGETS = ['productive-time', 'weekly-languages', 'weekly-projects']
-    const hasDynamicFeatures = blocks.some((b: any) => b.type === 'widget' && ACTIONS_REQUIRED_WIDGETS.includes(b.widgetType || b.id))
+    // Calculate required secrets based on widgets used in the canvas
+    const requiredSecrets: string[] = []
+    const hasGitHubWidgets = blocks.some((b: any) => b.type === 'widget' && ['productive-time', 'weekly-languages', 'weekly-projects'].includes(b.widgetType || b.id))
+    const hasWakaTimeWidget = blocks.some((b: any) => b.type === 'widget' && (b.widgetType || b.id) === 'waka-10k-hours')
+
+    if (hasGitHubWidgets) requiredSecrets.push('GH_TOKEN')
+    if (hasWakaTimeWidget) requiredSecrets.push('WAKATIME_API_KEY')
+
+    const hasDynamicFeatures = requiredSecrets.length > 0
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
@@ -101,27 +110,50 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
 
                                         <div className={styles.dynamicContainer}>
                                             {hasDynamicFeatures && (
-                                                <div className={styles.formGroup}>
-                                                    <label>Update Frequency (Cron)</label>
-                                                    <div className={styles.selectWrapper}>
-                                                        <select
-                                                            className={styles.dropdown}
-                                                            value={cronFrequency}
-                                                            onChange={(e) => {
-                                                                setCronFrequency(e.target.value)
-                                                                setExportCronFrequency(e.target.value)
-                                                            }}
-                                                        >
-                                                            <option value="0 * * * *">Hourly</option>
-                                                            <option value="0 */6 * * *">Every 6 hours</option>
-                                                            <option value="0 0 * * *">Daily</option>
-                                                            <option value="0 0 * * 1">Weekly</option>
-                                                        </select>
+                                                <>
+                                                    <div className={styles.formGroup}>
+                                                        <label>Update Frequency (Cron)</label>
+                                                        <div className={styles.selectWrapper}>
+                                                            <select
+                                                                className={styles.dropdown}
+                                                                value={cronFrequency}
+                                                                onChange={(e) => {
+                                                                    setCronFrequency(e.target.value)
+                                                                    setExportCronFrequency(e.target.value)
+                                                                }}
+                                                            >
+                                                                <option value="0 * * * *">Hourly</option>
+                                                                <option value="0 */6 * * *">Every 6 hours</option>
+                                                                <option value="0 0 * * *">Daily</option>
+                                                                <option value="0 0 * * 1">Weekly</option>
+                                                            </select>
+                                                        </div>
+                                                        <p className={styles.helperText}>
+                                                            Determines how often GitHub Actions update your stats.
+                                                        </p>
                                                     </div>
-                                                    <p className={styles.helperText}>
-                                                        Determines how often GitHub Actions update your stats.
-                                                    </p>
-                                                </div>
+                                                    <div className={styles.formGroup}>
+                                                        <label>Timezone (TZ)</label>
+                                                        <div className={styles.selectWrapper}>
+                                                            <select
+                                                                className={styles.dropdown}
+                                                                value={timezone}
+                                                                onChange={(e) => setTimezone(e.target.value)}
+                                                            >
+                                                                <option value="Asia/Seoul">Asia/Seoul (KST)</option>
+                                                                <option value="Asia/Tokyo">Asia/Tokyo (JST)</option>
+                                                                <option value="America/New_York">America/New_York (EST/EDT)</option>
+                                                                <option value="America/Los_Angeles">America/Los_Angeles (PST/PDT)</option>
+                                                                <option value="Europe/London">Europe/London (GMT/BST)</option>
+                                                                <option value="Europe/Paris">Europe/Paris (CET/CEST)</option>
+                                                                <option value="UTC">UTC</option>
+                                                            </select>
+                                                        </div>
+                                                        <p className={styles.helperText}>
+                                                            Used by GitHub actions for accurate time aggregations.
+                                                        </p>
+                                                    </div>
+                                                </>
                                             )}
 
                                             <button className={styles.primaryButton} onClick={handleDownload}>
@@ -130,16 +162,39 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
 
                                             {hasDynamicFeatures ? (
                                                 <>
-                                                    <ExportTutorial />
-                                                    <div className={styles.guideBox}>
-                                                        <div className={styles.guideHeader}>
-                                                            <span className={styles.guideIcon}>💡</span>
-                                                            <h4>For Developers Modifying Code</h4>
+                                                    <ExportTutorial requiredSecrets={requiredSecrets} />
+                                                    <details className={styles.guideBox}>
+                                                        <summary className={styles.guideHeader}>
+                                                            <span className={styles.guideIcon}>⚠️</span>
+                                                            <h4>Important: Do Not Edit Inside Markers</h4>
+                                                        </summary>
+                                                        <div className={styles.guideText}>
+                                                            <p>
+                                                                GitHub Actions will completely overwrite anything inside the <code>&lt;!-- glossy-...-start --&gt;</code> and <code>-end</code> markers every day.
+                                                            </p>
+                                                            <ul>
+                                                                <li>Any manual text or design changes you make <strong>inside the markers</strong> will be lost.</li>
+                                                                <li>To permanently customize widgets, update your <code>glossy-config.json</code> file instead.</li>
+                                                                <li>You can safely add your own markdown <strong>above or below</strong> the markers.</li>
+                                                            </ul>
                                                         </div>
-                                                        <p className={styles.guideText}>
-                                                            If you manually duplicate widgets (via Ctrl+C, Ctrl+V) by opening the downloaded &lt;glossy-config.json&gt;, you MUST change the <strong>id</strong> value to a new random string. Duplicated ID markers may cause rendering errors.
-                                                        </p>
-                                                    </div>
+                                                    </details>
+
+                                                    <details className={styles.guideBox} style={{ marginTop: '1rem' }}>
+                                                        <summary className={styles.guideHeader}>
+                                                            <span className={styles.guideIcon}>⚠️</span>
+                                                            <h4>Advanced: Duplicating Widgets via JSON</h4>
+                                                        </summary>
+                                                        <div className={styles.guideText}>
+                                                            <p>
+                                                                If you manually duplicate widgets (via Copy & Paste) by opening the downloaded <code>glossy-config.json</code>:
+                                                            </p>
+                                                            <ul>
+                                                                <li>You <strong>MUST</strong> change the <code>id</code> value of the duplicated widget to a new random string.</li>
+                                                                <li>If two widgets share the exact same <code>id</code>, the GitHub Action script will mix them up and rendering will break!</li>
+                                                            </ul>
+                                                        </div>
+                                                    </details>
                                                 </>
                                             ) : (
                                                 <div className={styles.staticNotice}>

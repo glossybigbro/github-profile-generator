@@ -54,11 +54,28 @@ export function generateMarkdownFromBlocks(blocks: Block[], config: GeneratorCon
                         type: 'section', // generic
                         enabled: true
                     }
+                    // Merge block-level config into global config so the generator sees the overrides
+                    const mergedConfig = { ...config, ...w }
                     // Generate using the existing strategy
-                    const widgetContent = generator.generate(config, mockSection as any).trimEnd()
+                    const widgetContent = generator.generate(mergedConfig, mockSection as any).trimEnd()
 
-                    // Add HTML markers for GitHub Actions script to locate and update the block
-                    content = `<!-- glossy-${w.widgetType}-${w.id}-start -->\n${widgetContent}\n<!-- glossy-${w.widgetType}-${w.id}-end -->`
+                    // List of widgets that require dynamic GitHub Actions updates.
+                    // Static widgets (e.g. Activity Graph using Vercel image, Bio) do NOT need these markers.
+                    const DYNAMIC_WIDGETS = [
+                        'productive-time',
+                        'weekly-languages',
+                        'weekly-projects',
+                        'waka-10k-hours',
+                        'activity-graph'
+                    ]
+
+                    if (DYNAMIC_WIDGETS.includes(w.widgetType)) {
+                        // Add HTML markers for GitHub Actions script to locate and update the block
+                        content = `<!-- glossy-${w.widgetType}-${w.id}-start -->\n${widgetContent}\n<!-- glossy-${w.widgetType}-${w.id}-end -->`
+                    } else {
+                        // For static widgets, just output the raw markdown content without markers
+                        content = widgetContent
+                    }
                 } else {
                     content = `<!-- Widget: ${w.widgetType} (No generator found) -->`
                 }

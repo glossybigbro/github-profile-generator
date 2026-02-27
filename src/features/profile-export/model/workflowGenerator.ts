@@ -9,6 +9,9 @@
 export interface WorkflowConfig {
   username: string
   updateInterval: string // cron expression
+  timezone: string
+  hasGithub?: boolean
+  hasWakatime?: boolean
 }
 
 /**
@@ -50,9 +53,8 @@ jobs:
         
       - name: Run Update Script
         env:
-          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
-          # WAKATIME_API_KEY: \${{ secrets.WAKATIME_API_KEY }} # Uncomment if using WakaTime
-        run: npm run update-profile
+          TZ: '${config.timezone}'
+${config.hasGithub !== false ? '          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}\n' : ''}${config.hasWakatime ? '          WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}\n' : ''}        run: npm run update-profile
       
       - name: Commit and push if changed
         run: |
@@ -77,10 +79,19 @@ export function getDefaultCronExpression(): string {
  * @param cronFrequency - Cron frequency for schedule
  * @returns YAML content for .github/workflows/update-profile.yml
  */
-export function generateProfileUpdateWorkflow(username: string, cronFrequency: string = '0 0 * * *'): string {
+export function generateProfileUpdateWorkflow(
+  username: string,
+  cronFrequency: string = '0 0 * * *',
+  timezone: string = 'Asia/Seoul',
+  hasGithub: boolean = true,
+  hasWakatime: boolean = false
+): string {
   const config: WorkflowConfig = {
     username,
-    updateInterval: cronFrequency
+    updateInterval: cronFrequency,
+    timezone,
+    hasGithub,
+    hasWakatime
   }
 
   return generateWorkflowYAML(config)

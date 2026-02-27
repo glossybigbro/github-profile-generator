@@ -5,7 +5,7 @@ import { useProfileStore } from '@/entities/profile/model/useProfileStore'
 import { useBlockStore } from '@/entities/block/model/useBlockStore'
 import { Block } from '@/entities/block/model/types'
 import { generateProfileUpdateWorkflow } from './workflowGenerator'
-import { generateReadmeUpdaterScript, generateGithubFetcherScript, generatePackageJson, generateTsConfig } from './scriptGenerator'
+import { generateReadmeUpdaterScript, generateGithubFetcherScript, generatePackageJson, generateTsConfig, generateWakatimeFetcherScript } from './scriptGenerator'
 
 export function useProfileExport() {
     const [isCopied, setIsCopied] = useState(false)
@@ -23,7 +23,9 @@ export function useProfileExport() {
     }, [store, blocks])
 
     const ACTIONS_REQUIRED_WIDGETS = ['productive-time', 'weekly-languages', 'weekly-projects']
-    const hasDynamicFeatures = blocks.some((b: any) => b.type === 'widget' && ACTIONS_REQUIRED_WIDGETS.includes(b.widgetType || b.id))
+    const hasGithub = blocks.some((b: any) => b.type === 'widget' && ACTIONS_REQUIRED_WIDGETS.includes(b.widgetType || b.id))
+    const hasWakatime = blocks.some((b: any) => b.type === 'widget' && (b.widgetType === 'waka-10k-hours' || b.id === 'waka-10k-hours'))
+    const hasDynamicFeatures = hasGithub || hasWakatime
 
     const copyToClipboard = useCallback(async () => {
         try {
@@ -45,6 +47,8 @@ export function useProfileExport() {
                     ...transformStoreToConfig(store),
                     blocks
                 }
+                // Strip API keys — they belong in GitHub Secrets, not in config
+                delete config.wakatimeKey
                 const JSZip = (await import('jszip')).default
                 const zip = new JSZip()
 
@@ -69,6 +73,8 @@ export function useProfileExport() {
                 ...transformStoreToConfig(store),
                 blocks
             }
+            // Strip API keys — they belong in GitHub Secrets, not in config
+            delete config.wakatimeKey
             const configString = JSON.stringify(config, null, 2)
             zip.file("glossy-config.json", configString)
 
@@ -76,14 +82,16 @@ export function useProfileExport() {
             const username = store.username || 'your-username'
             // For now, defaulting cron to daily in the hook since we haven't passed cron from modal yet (Will update shortly in modal)
             const cronFrequency = store.exportCronFrequency || '0 0 * * *'
-            const workflow = generateProfileUpdateWorkflow(username, cronFrequency)
+            const timezone = store.timezone || 'Asia/Seoul'
+            const workflow = generateProfileUpdateWorkflow(username, cronFrequency, timezone, hasGithub, hasWakatime)
             zip.file(".github/workflows/glossy-update.yml", workflow)
 
             // 3. Scripts directory
             const scriptsFolder = zip.folder("scripts")
             if (scriptsFolder) {
-                scriptsFolder.file("update-readme.ts", generateReadmeUpdaterScript())
-                scriptsFolder.file("github-fetcher.ts", generateGithubFetcherScript())
+                scriptsFolder.file("update-readme.ts", generateReadmeUpdaterScript(hasGithub, hasWakatime))
+                if (hasGithub) scriptsFolder.file("github-fetcher.ts", generateGithubFetcherScript())
+                if (hasWakatime) scriptsFolder.file("wakatime-fetcher.ts", generateWakatimeFetcherScript())
             }
 
             // 4. Package.json & tsconfig.json

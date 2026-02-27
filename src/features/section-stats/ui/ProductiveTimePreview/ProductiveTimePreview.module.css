@@ -1,0 +1,30 @@
+.previewWrapper {
+    width: 100%;
+    margin-bottom: 12px;
+    position: relative;
+}
+
+.codeBlock {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 16px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.9);
+    overflow-x: auto;
+}
+
+.codeBlock pre {
+    margin: 0;
+    white-space: pre;
+}
+
+.editableTitle {
+    color: #e5e7eb;
+    font-weight: bold;
+    font-size: 15px;
+    padding-bottom: 4px;
+    margin-bottom: 12px;
+}

@@ -6,6 +6,7 @@ import { ProductiveTimeStrategy } from './act1/productive-time'
 import { TimezoneGenerator } from './act3/timezone'
 import { GitHubLanguagesGenerator } from './act4/weekly-languages'
 import { GitHubProjectsGenerator } from './act4/weekly-projects'
+import { WakaTenThousandHoursGenerator } from './act-waka/waka-10k-hours'
 
 export const STRATEGIES: Record<string, SectionGenerator> = {
     'activity-graph': new ActivityGraphGenerator(),
@@ -14,6 +15,7 @@ export const STRATEGIES: Record<string, SectionGenerator> = {
     'timezone': TimezoneGenerator,
     'weekly-languages': GitHubLanguagesGenerator,
     'weekly-projects': GitHubProjectsGenerator,
+    'waka-10k-hours': WakaTenThousandHoursGenerator,
 }
 
 export function getGenerator(sectionId: string): SectionGenerator {

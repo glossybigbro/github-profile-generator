@@ -10,36 +10,53 @@ import styles from './WeeklyLanguagePreview.module.css'
 
 interface WeeklyLanguagePreviewProps {
     block: Block
+    isFirst?: boolean
 }
 
-export function WeeklyLanguagePreview({ block }: WeeklyLanguagePreviewProps) {
+export function WeeklyLanguagePreview({ block, isFirst }: WeeklyLanguagePreviewProps) {
     const globalWeeklyLanguages = useProfileStore(state => state.weeklyLanguages)
 
     const blockConfig = (block as any).config || {}
     // Use block-specific config if it exists, otherwise fallback to global
     const weeklyLanguages = blockConfig.weeklyLanguages || globalWeeklyLanguages
 
+    const githubToken = useProfileStore(state => state.githubToken)
+
     const {
-        useRealData = false,
+        useRealData: configUseRealData = false,
         realData = null
     } = blockConfig
 
+    // Force mock mode if there is no token
+    const useRealData = configUseRealData && !!githubToken
+
     const themeColor = weeklyLanguages.themeColor || 'blue'
 
+    const defaultTitle = `💬 Weekly Languages`
+
     // Editable title state
-    const [title, setTitle] = useState(() => {
-        const periodLabel = weeklyLanguages.periodDays === 7 ? 'Week' : `${weeklyLanguages.periodDays} Days`
-        return blockConfig.title || `💬 Weekly Languages (Last ${periodLabel})`
-    })
+    const [title, setTitle] = useState(() => blockConfig.title || defaultTitle)
     const titleRef = useRef<HTMLDivElement>(null)
 
-    // Update title when period changes
+    // Update title when empty
     useEffect(() => {
-        if (!blockConfig.title) {
-            const periodLabel = weeklyLanguages.periodDays === 7 ? 'Week' : `${weeklyLanguages.periodDays} Days`
-            setTitle(`💬 Weekly Languages (Last ${periodLabel})`)
+        if (!blockConfig.title || /^💬 Weekly Languages( \(Last (Week|\d+ Days)\))?$/.test(blockConfig.title)) {
+            setTitle(defaultTitle)
+
+            // Sync up the config so it doesn't hold the stale period string
+            if (block.id && blockConfig.title) {
+                const { useBlockStore } = require('@/entities/block/model/useBlockStore')
+                const blocks = useBlockStore.getState().blocks
+                const currentBlock = blocks.find((b: any) => b.id === block.id)
+                if (currentBlock && currentBlock.type === 'widget') {
+                    const currentConfig = (currentBlock as any).config || {}
+                    useBlockStore.getState().updateBlock(block.id, {
+                        config: { ...currentConfig, title: defaultTitle }
+                    })
+                }
+            }
         }
-    }, [weeklyLanguages.periodDays, blockConfig.title])
+    }, [])
 
     // Listen for focus-widget-title event to move cursor to title end
     useEffect(() => {
@@ -61,7 +78,7 @@ export function WeeklyLanguagePreview({ block }: WeeklyLanguagePreviewProps) {
         return () => window.removeEventListener('focus-widget-title', handleFocusTitle as EventListener)
     }, [block])
 
-    const languages = useRealData && realData
+    let languages = useRealData && realData
         ? realData
         : MOCK_LANGUAGE_DATA
 
@@ -84,9 +101,8 @@ export function WeeklyLanguagePreview({ block }: WeeklyLanguagePreviewProps) {
     const circleEmoji = theme.emoji.circle
 
     const generateDataChart = () => {
-        if (useRealData && filteredLanguages.length === 0) {
-            return '>_ Productive Time\n\n' +
-                '   ╭────────────────────────────╮\n' +
+        if (filteredLanguages.length === 0) {
+            return '   ╭────────────────────────────╮\n' +
                 '   │   NO ACTIVITY DETECTED     │\n' +
                 '   │   Waiting for daily code.  │\n' +
                 '   ╰────────────────────────────╯\n'
@@ -96,9 +112,11 @@ export function WeeklyLanguagePreview({ block }: WeeklyLanguagePreviewProps) {
         let chart = ''
 
         filteredLanguages.forEach((lang: { name: string; count: number; percent: number }) => {
-            const namePad = lang.name.padEnd(15, ' ')
-            const statPad = `${lang.count} Repos`.padEnd(15, ' ')
-            const percentPad = `${lang.percent} %`.padStart(7, ' ')
+            const safeName = lang.name.length > 26 ? lang.name.substring(0, 26) + '..' : lang.name
+            const namePad = safeName.padEnd(28, ' ')
+            const repoStr = String(lang.count).padStart(8, ' ')
+            const statPad = `${repoStr} Repos`.padEnd(26, ' ')
+            const percentPad = `${lang.percent} %`.padStart(8, ' ')
 
             let visualBar = ''
 
@@ -140,7 +158,7 @@ export function WeeklyLanguagePreview({ block }: WeeklyLanguagePreviewProps) {
     }
 
     return (
-        <div className={styles.previewWrapper} style={{ marginTop: '12px' }}>
+        <div className={styles.previewWrapper} style={{ marginTop: isFirst ? '0px' : '12px' }}>
             <div className={styles.codeBlock}>
                 {/* Editable Title */}
                 <div
@@ -164,11 +182,25 @@ export function WeeklyLanguagePreview({ block }: WeeklyLanguagePreviewProps) {
                     {generateDataChart()}
                 </pre>
             </div>
-            {!useRealData && (
-                <div className={styles.mockBadge}>
-                    📊 Mock Data (Click "Analyze My Activity" to load real stats)
-                </div>
-            )}
+            {!useRealData && (() => {
+                const githubToken = useProfileStore.getState().githubToken
+                const badgeText = !githubToken
+                    ? '🔒 Preview Mode: Connect API Key'
+                    : '📊 Preview Data: Click Analyze'
+                return (
+                    <div
+                        className={styles.mockOverlay}
+                        onClick={() => {
+                            window.dispatchEvent(new CustomEvent('focus-widget-title', {
+                                detail: { widgetType: 'weekly-languages' }
+                            }))
+                        }}
+                        title={!githubToken ? 'Click to connect your GitHub Token' : 'Click Analyze in settings to load real data'}
+                    >
+                        <div className={styles.mockBadge}>{badgeText}</div>
+                    </div>
+                )
+            })()}
         </div>
     )
 }

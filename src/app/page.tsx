@@ -8,6 +8,7 @@ import { OnboardingCard } from '@/features/onboarding'
 import { HudTransmission, ReleaseModal } from '@/features/release-notification'
 import { ExportFAB } from '@/features/profile-export/ui/ExportFAB'
 import { ExportModal } from '@/features/profile-export/ui/ExportModal'
+import { WakaActivationModal } from '@/features/wakatime-integration/ui/WakaActivationModal'
 import { useProfileStore } from '@/entities/profile/model/useProfileStore'
 import styles from './page.module.css'
 
@@ -43,6 +44,7 @@ export default function GeneratorPage() {
                         isOpen={isExportOpen}
                         onClose={() => setIsExportOpen(false)}
                     />
+                    <WakaActivationModal />
                 </>
             )}
         </>

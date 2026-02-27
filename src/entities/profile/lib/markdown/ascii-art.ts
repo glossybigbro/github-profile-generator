@@ -47,10 +47,13 @@ export const generateCyberDeckAscii = (stats: ProductiveTimeStats): string => {
 
     const row = (icon: string, label: string, count: number, percentage: number) => {
         const bar = createBar(percentage, 25, '█', '░')
-        return `${icon} ${label.padEnd(14, ' ')} ${count.toString().padStart(6, ' ')} commits    ${bar}    ${percentage.toFixed(2).padStart(5, '0')} %`
+        const labelPad = label.padEnd(25, ' ')
+        const statPad = `${count.toString().padStart(8, ' ')} commits`.padEnd(26, ' ')
+        return `${icon} ${labelPad} ${statPad} ${bar}    ${percentage.toFixed(2).padStart(5, '0')} %`
     }
 
     return '```text\n' +
+        `${getDynamicTitle('cyber', stats)}\n\n` +
         row('🌞', 'Morning', commits.morning, morning) + '\n' +
         row('🌆', 'Daytime', commits.daytime, daytime) + '\n' +
         row('🌃', 'Evening', commits.evening, evening) + '\n' +
@@ -67,10 +70,13 @@ export const generateModernSquareAscii = (stats: ProductiveTimeStats): string =>
 
     const row = (icon: string, label: string, count: number, percentage: number) => {
         const bar = createBar(percentage, 25, '■', '□')
-        return `${icon} ${label.toUpperCase().padEnd(14, ' ')} ${count.toString().padStart(6, ' ')} commits     ${bar}    ${percentage.toFixed(2).padStart(5, '0')} %`
+        const labelPad = label.toUpperCase().padEnd(25, ' ')
+        const statPad = `${count.toString().padStart(8, ' ')} commits`.padEnd(26, ' ')
+        return `${icon} ${labelPad} ${statPad} ${bar}    ${percentage.toFixed(2).padStart(5, '0')} %`
     }
 
     return '```text\n' +
+        `${getDynamicTitle('modern', stats)}\n\n` +
         row('🏙️', 'Morning', commits.morning, morning) + '\n' +
         row('🏢', 'Daytime', commits.daytime, daytime) + '\n' +
         row('🌉', 'Evening', commits.evening, evening) + '\n' +
@@ -87,10 +93,13 @@ export const generateMinimalDotAscii = (stats: ProductiveTimeStats): string => {
 
     const row = (icon: string, label: string, count: number, percentage: number) => {
         const bar = createBar(percentage, 25, '●', '○')
-        return `${icon} ${label.padEnd(14, ' ')} ${count.toString().padStart(6, ' ')} commits     ${bar}    ${percentage.toFixed(2).padStart(5, '0')} %`
+        const labelPad = label.padEnd(25, ' ')
+        const statPad = `${count.toString().padStart(8, ' ')} commits`.padEnd(26, ' ')
+        return `${icon} ${labelPad} ${statPad} ${bar}    ${percentage.toFixed(2).padStart(5, '0')} %`
     }
 
     return '```text\n' +
+        `${getDynamicTitle('minimal', stats)}\n\n` +
         row('🕕', 'Morning', commits.morning, morning) + '\n' +
         row('🕛', 'Daytime', commits.daytime, daytime) + '\n' +
         row('🕡', 'Evening', commits.evening, evening) + '\n' +
@@ -107,10 +116,13 @@ export const generateTerminalAscii = (stats: ProductiveTimeStats): string => {
 
     const row = (label: string, count: number, percentage: number) => {
         const bar = createBar(percentage, 25, '⣿', '⣀')
-        return `> ${label.padEnd(15, ' ')} ${count.toString().padStart(6, ' ')} commits     ${bar}    ${percentage.toFixed(2).padStart(5, '0')} %`
+        const labelPad = label.padEnd(26, ' ')
+        const statPad = `${count.toString().padStart(8, ' ')} commits`.padEnd(26, ' ')
+        return `> ${labelPad} ${statPad} ${bar}    ${percentage.toFixed(2).padStart(5, '0')} %`
     }
 
     return '```text\n' +
+        `${getDynamicTitle('terminal', stats)}\n\n` +
         row('Morning', commits.morning, morning) + '\n' +
         row('Daytime', commits.daytime, daytime) + '\n' +
         row('Evening', commits.evening, evening) + '\n' +
@@ -128,10 +140,13 @@ export const generateSliderAscii = (stats: ProductiveTimeStats): string => {
     const row = (icon: string, label: string, count: number, percentage: number) => {
         // Use CreateSlider here
         const bar = createSlider(percentage, 25, '─', '●')
-        return `${icon} ${label.padEnd(14, ' ')} ${count.toString().padStart(6, ' ')} commits     ${bar}    ${percentage.toFixed(2).padStart(5, '0')} %`
+        const labelPad = label.padEnd(25, ' ')
+        const statPad = `${count.toString().padStart(8, ' ')} commits`.padEnd(26, ' ')
+        return `${icon} ${labelPad} ${statPad} ${bar}    ${percentage.toFixed(2).padStart(5, '0')} %`
     }
 
     return '```text\n' +
+        `${getDynamicTitle('slider', stats)}\n\n` +
         row('🕐', 'Morning', commits.morning, morning) + '\n' +
         row('☀️', 'Daytime', commits.daytime, daytime) + '\n' +
         row('🌕', 'Evening', commits.evening, evening) + '\n' +

@@ -55,5 +55,8 @@ export const transformStoreToConfig = (store: ProfileState): ExtendedGeneratorCo
         // Weekly Settings
         weeklyLanguages: store.weeklyLanguages,
         weeklyProjects: store.weeklyProjects,
+
+        // WakaTime API Key (used as guard in waka-10k-hours.ts)
+        wakatimeKey: store.wakatimeKey,
     } as ExtendedGeneratorConfig
 }

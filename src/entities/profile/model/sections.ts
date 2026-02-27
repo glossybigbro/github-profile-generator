@@ -10,9 +10,9 @@ export interface Section {
     name: string
     description?: string
     icon: string
-    category: 'ACT1' | 'ACT2' | 'ACT3' | 'ACT4' | 'ACT5' | 'ACT6' | 'ACT7' | 'custom'
+    category: 'ACT1' | 'ACT2' | 'ACT3' | 'ACT4' | 'ACT5' | 'ACT6' | 'ACT7' | 'ACT_WAKA' | 'custom'
     width: 'full' | 'half' | 'compact'
-    requires?: 'wakatime' | 'spotify'
+    requires?: 'wakatime' | 'spotify' | 'github-token'
     defaultEnabled?: boolean
     enabled?: boolean // Runtime state
     locked?: boolean // Feature lock state
@@ -44,8 +44,8 @@ export const SECTIONS: Section[] = [
 
     // ACT 4: This Week & Current Focus
     { id: 'timezone', name: 'Time Zone', description: 'Current timezone display', icon: '🔵', category: 'ACT4', width: 'compact', defaultEnabled: false, locked: true }, // Moved from ACT 3
-    { id: 'weekly-languages', name: 'Weekly Languages', description: 'Languages used this week', icon: '🔵', category: 'ACT4', width: 'half', defaultEnabled: false },
-    { id: 'weekly-projects', name: 'Weekly Projects', description: 'Projects worked on this week', icon: '🔵', category: 'ACT4', width: 'half', defaultEnabled: false },
+    { id: 'weekly-languages', name: 'Weekly Languages', description: 'Languages used this week', icon: '🔵', category: 'ACT4', width: 'half', requires: 'github-token', defaultEnabled: false },
+    { id: 'weekly-projects', name: 'Weekly Projects', description: 'Projects worked on this week', icon: '🔵', category: 'ACT4', width: 'half', requires: 'github-token', defaultEnabled: false },
     { id: 'weekly-trend', name: 'Weekly Trend', description: 'Weekly activity trend', icon: '🔵', category: 'ACT4', width: 'full', defaultEnabled: false, locked: true },
 
     // ACT 5: 누적 역사
@@ -72,6 +72,9 @@ export const SECTIONS: Section[] = [
     { id: 'top-artists', name: 'Top Artists/Genres', description: 'Favorite music stats', icon: '🔵', category: 'ACT7', width: 'half', requires: 'spotify', defaultEnabled: false, locked: true },
     { id: 'quote-of-day', name: 'Quote of the Day', description: 'Daily inspirational quote', icon: '🔵', category: 'ACT7', width: 'full', defaultEnabled: false, locked: true },
     { id: 'footer-wave', name: 'Footer Wave', description: 'Animated footer wave', icon: '🟢', category: 'ACT7', width: 'full', defaultEnabled: false, locked: true },
+
+    // WAKATIME ZONE (Independent stats via API Key)
+    { id: 'waka-10k-hours', name: '10,000 Hours Rule', description: 'Gamified mastery progress', icon: '⏱️', category: 'ACT_WAKA', width: 'full', requires: 'wakatime', defaultEnabled: false, locked: false },
 ]
 
 export const ACT_LABELS = {
@@ -82,6 +85,7 @@ export const ACT_LABELS = {
     ACT5: 'Cumulative History',
     ACT6: 'GitHub Deep Dive & Achievements',
     ACT7: 'Interests & Finale',
+    ACT_WAKA: 'WakaTime Zone',
 }
 
 export const BIO_DEFAULTS = {

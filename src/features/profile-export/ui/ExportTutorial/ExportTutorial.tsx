@@ -1,14 +1,33 @@
 import React from 'react'
 import styles from './ExportTutorial.module.css'
 
-export function ExportTutorial() {
+export interface ExportTutorialProps {
+    requiredSecrets: string[]
+}
+
+const SECRETS_REGISTRY: Record<string, { title: string, desc: React.ReactNode, url: string }> = {
+    'GH_TOKEN': {
+        title: 'GitHub Personal Access Token',
+        desc: <>Generate a classic token with <code>repo</code> and <code>user</code> scopes. Required to fetch github stats securely.</>,
+        url: 'https://github.com/settings/tokens/new'
+    },
+    'WAKATIME_API_KEY': {
+        title: 'WakaTime Secret API Key',
+        desc: "Copy your Secret API Key from account settings. Required to calculate your coding hours.",
+        url: 'https://wakatime.com/settings/api-key'
+    }
+}
+
+export function ExportTutorial({ requiredSecrets }: ExportTutorialProps) {
+    if (requiredSecrets.length === 0) return null
+
     return (
         <div className={styles.tutorialContainer}>
             <div className={styles.tutorialHeader}>
                 <div className={styles.headerIcon}>🚀</div>
                 <div className={styles.headerText}>
-                    <h4>How to setup GitHub Actions</h4>
-                    <p>Follow these 3 simple steps to automate your profile updates.</p>
+                    <h4>Action Required: Setup Keys</h4>
+                    <p>Follow these steps to unlock auto-updates for your specific widgets.</p>
                 </div>
             </div>
 
@@ -16,10 +35,9 @@ export function ExportTutorial() {
                 <div className={styles.step}>
                     <div className={styles.stepNumber}>1</div>
                     <div className={styles.stepContent}>
-                        <h5>Upload to your repository</h5>
+                        <h5>Upload ZIP to your repository</h5>
                         <p>
-                            Extract the downloaded ZIP file and move all contents into the root of your <span className={styles.codePath}>username/username</span> repository.
-                            <br /><span style={{ fontSize: '13px', opacity: 0.8, fontStyle: 'italic', marginTop: '6px', display: 'inline-block', lineHeight: 1.4 }}>* Why? The uploaded YAML file acts as an alarm clock, telling GitHub exactly when to run the stats update script automatically.</span>
+                            Extract the downloaded ZIP file and push all contents into the root of your <span className={styles.codePath}>username/username</span> repository.
                         </p>
                     </div>
                 </div>
@@ -27,22 +45,28 @@ export function ExportTutorial() {
                 <div className={styles.step}>
                     <div className={styles.stepNumber}>2</div>
                     <div className={styles.stepContent}>
-                        <h5>Get Personal Access Token</h5>
+                        <h5>Save Required Secrets to GitHub</h5>
                         <p>
-                            Go to GitHub <strong>Settings {'>'} Developer settings {'>'} Personal access tokens (classic)</strong>. Generate a new token with <code>repo</code> and <code>user</code> scopes.
-                            <br /><span style={{ fontSize: '13px', opacity: 0.8, fontStyle: 'italic', marginTop: '6px', display: 'inline-block', lineHeight: 1.4 }}>* Why? The script needs read & write permission to fetch your private commit history and calculate accurate language stats.</span>
+                            In your repository, go to <strong>Settings {'>'} Secrets and variables {'>'} Actions</strong>. Add the following {requiredSecrets.length} secret keys to authorize the bots:
                         </p>
-                    </div>
-                </div>
-
-                <div className={styles.step}>
-                    <div className={styles.stepNumber}>3</div>
-                    <div className={styles.stepContent}>
-                        <h5>Save Secret & Done!</h5>
-                        <p>
-                            In your repository, go to <strong>Settings {'>'} Secrets and variables {'>'} Actions</strong>. Click <strong>New repository secret</strong>, name it <span className={styles.codePath}>GH_TOKEN</span>, and paste the token.
-                            <br /><span style={{ fontSize: '13px', opacity: 0.8, fontStyle: 'italic', marginTop: '6px', display: 'inline-block', lineHeight: 1.4 }}>* Why? This securely hides your token from the public while allowing the automated script to log in as you to draw the widgets.</span>
-                        </p>
+                        <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            {requiredSecrets.map(secretId => {
+                                const secretInfo = SECRETS_REGISTRY[secretId]
+                                if (!secretInfo) return null
+                                return (
+                                    <div key={secretId} style={{ background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                                            <strong style={{ color: '#58a6ff', fontFamily: 'monospace' }}>{secretId}</strong>
+                                            <a href={secretInfo.url} target="_blank" rel="noreferrer" style={{ fontSize: '12px', color: '#8b949e', textDecoration: 'underline' }}>
+                                                Where to get it ↗
+                                            </a>
+                                        </div>
+                                        <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}>{secretInfo.title}</div>
+                                        <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.4 }}>{secretInfo.desc}</div>
+                                    </div>
+                                )
+                            })}
+                        </div>
                     </div>
                 </div>
             </div>

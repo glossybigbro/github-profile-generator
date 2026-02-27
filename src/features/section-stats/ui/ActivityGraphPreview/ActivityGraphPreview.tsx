@@ -6,9 +6,10 @@ import { generateActivityGraphUrl, ActivityGraphConfig } from '@/features/sectio
 
 interface ActivityGraphPreviewProps {
     block: Block
+    isFirst?: boolean
 }
 
-export function ActivityGraphPreview({ block }: ActivityGraphPreviewProps) {
+export function ActivityGraphPreview({ block, isFirst }: ActivityGraphPreviewProps) {
     const { username } = useProfileStore()
 
     // Retrieve config from block
@@ -25,7 +26,7 @@ export function ActivityGraphPreview({ block }: ActivityGraphPreviewProps) {
     const graphUrl = generateActivityGraphUrl(username, config)
 
     return (
-        <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '12px', marginBottom: '12px' }}>
+        <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: isFirst ? '0px' : '12px', marginBottom: '12px' }}>
             <img
                 src={graphUrl}
                 alt={`${username}'s Activity Graph`}

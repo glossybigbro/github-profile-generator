@@ -1,0 +1,21 @@
+{
+  "data": {
+    "is_up_to_date": true,
+    "range": {
+      "start": "2026-02-25T15:00:00Z",
+      "start_date": "2026-02-26",
+      "start_text": "Today",
+      "end": "2026-02-26T14:59:59Z",
+      "end_date": "2026-02-26",
+      "end_text": "Today",
+      "timezone": "Asia/Seoul"
+    },
+    "timeout": 15,
+    "total_seconds": 0,
+    "text": "0 secs",
+    "decimal": "0.00",
+    "digital": "0:00",
+    "daily_average": 0
+  },
+  "message": "Calculating stats for this user. Check back later."
+}

@@ -16,20 +16,51 @@
     overflow-x: auto;
 }
 
-.readonlyData {
+.codeBlock pre {
     margin: 0;
     white-space: pre;
-    font-family: inherit;
-    color: inherit;
+}
+
+.editableTitle {
+    color: #e5e7eb;
+    font-weight: bold;
+    font-size: 15px;
+    padding-bottom: 4px;
+    margin-bottom: 12px;
+}
+
+/* Mock UI Overlay (matches WakaTenThousandPreview pattern) */
+.mockOverlay {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.mockOverlay:hover {
+    transform: scale(1.05);
 }
 
 .mockBadge {
-    margin-top: 8px;
-    padding: 8px 12px;
-    background: rgba(255, 193, 7, 0.1);
-    border: 1px solid rgba(255, 193, 7, 0.3);
-    border-radius: 4px;
-    font-size: 12px;
-    color: rgba(255, 193, 7, 0.9);
-    text-align: center;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.mockOverlay:hover .mockBadge {
+    background: rgba(34, 211, 238, 0.3);
+    border-color: rgba(34, 211, 238, 0.6);
+    color: #67e8f9;
 }

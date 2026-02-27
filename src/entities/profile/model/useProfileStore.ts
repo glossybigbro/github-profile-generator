@@ -9,6 +9,7 @@ export interface ProfileState {
 
     // 기본 정보
     username: string
+    githubToken: string
     wakatimeKey: string
     spotifyId: string
 
@@ -109,14 +110,12 @@ export interface ProfileState {
         count: number
         excludeLanguages: string[]
         sortBy: 'usage' | 'alphabetical' | 'recent'
-        periodDays: number
     }
     setWeeklyLanguages: (config: Partial<{
         style: 'progress' | 'emoji' | 'compact'
         count: number
         excludeLanguages: string[]
         sortBy: 'usage' | 'alphabetical' | 'recent'
-        periodDays: number
     }>) => void
 
     // Weekly Projects Configuration
@@ -124,13 +123,11 @@ export interface ProfileState {
         style: 'progress' | 'emoji' | 'compact'
         count: number
         sortBy: 'commits' | 'alphabetical' | 'recent'
-        periodDays: number
     }
     setWeeklyProjects: (config: Partial<{
         style: 'progress' | 'emoji' | 'compact'
         count: number
         sortBy: 'commits' | 'alphabetical' | 'recent'
-        periodDays: number
     }>) => void
 
 
@@ -144,6 +141,7 @@ export interface ProfileState {
     // Actions
     setStep: (step: 'hero' | 'generator') => void
     setUsername: (username: string) => void
+    setGithubToken: (token: string) => void
     setWakatimeKey: (key: string) => void
     setSpotifyId: (id: string) => void
     setTemplate: (template: 'guilyx' | 'minimal' | 'space-ghibli') => void
@@ -162,6 +160,7 @@ export const useProfileStore = create<ProfileState>((set) => ({
     // 초기 상태
     currentStep: 'hero',
     username: '',
+    githubToken: '',
     wakatimeKey: '',
     spotifyId: '',
     selectedTemplate: 'space-ghibli',
@@ -240,8 +239,7 @@ export const useProfileStore = create<ProfileState>((set) => ({
         style: 'progress',
         count: 5,
         excludeLanguages: ['Markdown', 'JSON'],
-        sortBy: 'usage',
-        periodDays: 7
+        sortBy: 'usage'
     },
 
     setWeeklyLanguages: (config) => set((state) => ({
@@ -252,8 +250,7 @@ export const useProfileStore = create<ProfileState>((set) => ({
     weeklyProjects: {
         style: 'progress',
         count: 5,
-        sortBy: 'commits',
-        periodDays: 7
+        sortBy: 'commits'
     },
 
     setWeeklyProjects: (config) => set((state) => ({
@@ -370,5 +367,7 @@ export const useProfileStore = create<ProfileState>((set) => ({
         productiveTime: { ...state.productiveTime, stats, isAnalyzed: true }
     })),
 
+    setTheme: (theme: 'dark' | 'light') => set({ theme }),
+    setGithubToken: (githubToken: string) => set({ githubToken }),
 
 }))

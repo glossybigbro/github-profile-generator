@@ -3,6 +3,7 @@
 import { useProfileStore } from '@/entities/profile/model/useProfileStore'
 import styles from '@/shared/styles/SectionSettings.module.css'
 import { WeeklySettingsBase } from '@/features/section-stats/ui/WeeklyStats/WeeklySettingsBase/WeeklySettingsBase'
+import { GithubTokenManager } from '@/features/section-stats/ui/GithubTokenManager/GithubTokenManager'
 
 // ... imports
 import { COMMON_LANGUAGES, LANGUAGE_SORT_OPTIONS } from '@/features/section-stats/config/visualization-options'
@@ -13,6 +14,8 @@ export function WeeklyLanguagesSettings({ blockId }: { blockId?: string | null }
     const { weeklyLanguages, toggleLanguage, setConfig } = useWeeklyLanguages(blockId || undefined)
     const username = useProfileStore(state => state.username)
     const accentColor = useProfileStore(state => state.accentColor)
+    const githubToken = useProfileStore(state => state.githubToken)
+    const setGithubToken = useProfileStore(state => state.setGithubToken)
     const [isAnalyzing, setIsAnalyzing] = useState(false)
     const [analyzedCount, setAnalyzedCount] = useState<number | null>(null)
 
@@ -30,14 +33,19 @@ export function WeeklyLanguagesSettings({ blockId }: { blockId?: string | null }
             return
         }
 
+        if (!githubToken) {
+            alert('Please enter your GitHub Token below to use GraphQL API for accurate analysis!')
+            return
+        }
+
         setIsAnalyzing(true)
 
         try {
             // Import the API function
             const { analyzeWeeklyLanguages } = await import('@/entities/profile/api/language-api')
 
-            // Fetch real language statistics
-            const languageStats = await analyzeWeeklyLanguages(username)
+            // Fetch real language statistics with token for GraphQL
+            const languageStats = await analyzeWeeklyLanguages(username, githubToken)
 
             // Update block config with real data
             if (blockId) {
@@ -90,61 +98,79 @@ export function WeeklyLanguagesSettings({ blockId }: { blockId?: string | null }
                 </div>
             </div>
 
-            {/* Data Analysis Section */}
-            <div className={styles.settingsSection}>
-                <div className={styles.sectionTitle}>Data Analysis</div>
-                <button
-                    onClick={handleAnalyze}
-                    disabled={isAnalyzing}
-                    className={styles.analyzeButton}
-                    style={{ borderColor: accentColor, color: accentColor }}
-                >
-                    {isAnalyzing ? (
-                        <>
-                            <span className={styles.spinner}></span>
-                            Analyzing {username}'s languages...
-                        </>
-                    ) : (
-                        <>
-                            <span>🔍</span> Analyze My Activity
-                        </>
-                    )}
-                </button>
-                <p className={styles.dataNote}>
-                    Analyzes your recent <strong>public</strong> repositories to calculate real language statistics.
-                    <br />
-                    <span style={{ fontSize: '11px', color: '#ffcd56' }}>
-                        ⚠️ Private repositories are not accessible via this API.
-                    </span>
-                </p>
-                {analyzedCount !== null && (
-                    <div className={styles.analysisResult}>
-                        {analyzedCount === 0 ? (
-                            <span style={{ color: '#ffcd56' }}>No public repositories found with language data. 🤔</span>
-                        ) : (
-                            <span style={{ color: '#8b5cf6' }}>Language stats analyzed! 📊 ({analyzedCount} languages)</span>
-                        )}
-                    </div>
-                )}
-            </div>
+            {/* GitHub Token Manager for Validation & Inputs */}
+            <GithubTokenManager />
 
-            {/* Add to Canvas Button */}
+            {/* Data Analysis Section (only when token exists) */}
+            {githubToken && (
+                <div className={styles.settingsSection}>
+                    <div className={styles.sectionTitle}>Data Analysis</div>
+                    <button
+                        onClick={handleAnalyze}
+                        disabled={isAnalyzing}
+                        className={styles.analyzeButton}
+                        style={{ borderColor: accentColor, color: accentColor }}
+                    >
+                        {isAnalyzing ? (
+                            <>
+                                <span className={styles.spinner}></span>
+                                Analyzing {username}'s languages...
+                            </>
+                        ) : (
+                            <>
+                                <span>🔍</span> Analyze My Activity
+                            </>
+                        )}
+                    </button>
+                    <p className={styles.dataNote}>
+                        Analyzes your recent <strong>public</strong> repositories to calculate real language statistics.
+                    </p>
+                    {analyzedCount !== null && (
+                        <div className={styles.analysisResult}>
+                            {analyzedCount === 0 ? (
+                                <span style={{ color: '#ffcd56' }}>No public repositories found with language data. 🤔</span>
+                            ) : (
+                                <span style={{ color: '#8b5cf6' }}>Language stats analyzed! 📊 ({analyzedCount} languages)</span>
+                            )}
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Add to Canvas Button (locked when no token) */}
             <div className={styles.settingsSection}>
-                <button
-                    onClick={() => {
-                        // This will be handled by useSectionItem's handleOpenSettings
-                        // which closes the panel and finalizes the widget
-                        window.dispatchEvent(new CustomEvent('weekly-languages-add'))
-                    }}
-                    className={styles.addToCanvasButton}
-                    style={{
-                        backgroundColor: accentColor,
-                        borderColor: accentColor,
-                        color: 'white'
-                    }}
-                >
-                    <span>✨</span> Add to Canvas
-                </button>
+                {githubToken ? (
+                    <button
+                        onClick={() => {
+                            window.dispatchEvent(new CustomEvent('weekly-languages-add'))
+                        }}
+                        className={styles.addToCanvasButton}
+                        style={{
+                            backgroundColor: accentColor,
+                            borderColor: accentColor,
+                            color: 'white'
+                        }}
+                    >
+                        <span>✨</span> Add to Canvas
+                    </button>
+                ) : (
+                    <button
+                        onClick={() => {
+                            // Focus on the token input above
+                            const input = document.querySelector('input[placeholder="ghp_xxxxxxxxxxxx"]') as HTMLInputElement
+                            if (input) input.focus()
+                        }}
+                        className={styles.addToCanvasButton}
+                        style={{
+                            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                            color: 'rgba(255, 255, 255, 0.6)',
+                            gap: '8px'
+                        }}
+                    >
+                        <span style={{ fontSize: '16px' }}>🔒</span> Unlock to Add
+                    </button>
+                )}
             </div>
         </WeeklySettingsBase>
     )
